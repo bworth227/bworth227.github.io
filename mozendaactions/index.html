@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<!-- saved from url=(0034)http://britonh.com/mozendaactions/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+		<title>Actions</title>
+    </head>
+	<body>
+        <div id= "checkmark" style="opacity: 0;">
+            Copied
+        </div>
+
+        <div id="tableContainer" style="display:block;">
+            <table>
+               <tbody>
+                  <tr>
+                     <td>
+                        <button onclick="copyActionText('DataList')">Data List</button>
+                         <input id="DataList" type="text" readonly style="display:block; position:absolute; left:-9999px" value="&lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;BeginDataList&lt;/ActionType&gt; &lt;Description&gt;Begins a list of data items&lt;/Description&gt; &lt;Page&gt;&lt;/Page&gt; &lt;ItemType&gt;PlaceHolder&lt;/ItemType&gt; &lt;ItemXPath&gt;.&lt;/ItemXPath&gt; &lt;ElementName&gt;&lt;/ElementName&gt; &lt;ListName&gt;&lt;/ListName&gt; &lt;ListItem&gt;%Index%&lt;/ListItem&gt; &lt;ViewID&gt;&lt;/ViewID&gt; &lt;/Action&gt; &lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;EndList&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;ListName&gt;&lt;/ListName&gt; &lt;/Action&gt;"></td>
+                  </tr>
+                  <tr>
+                     <td>
+                        <button onclick="copyActionText('ItemList')">Item List</button>
+                        <input id="ItemList" type="text" readonly style="display:block; position:absolute; left:-9999px" value="&lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;BeginAnchorList&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;ItemType&gt;PlaceHolder&lt;/ItemType&gt; &lt;ItemXPath&gt;&lt;/ItemXPath&gt; &lt;ListName&gt;ItemList&lt;/ListName&gt; &lt;PreloadActionNodes&gt;True&lt;/PreloadActionNodes&gt; &lt;AutomaticallyAddCaptureActions&gt;False&lt;/AutomaticallyAddCaptureActions&gt; &lt;/Action&gt; &lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;GetElementValue&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;IsCaptureOptional&gt;False&lt;/IsCaptureOptional&gt; &lt;FieldExpression&gt;regex:^(?&amp;lt;Name&amp;gt;(.|\\n)+)$&lt;/FieldExpression&gt; &lt;ItemType&gt;PlaceHolder&lt;/ItemType&gt; &lt;ItemXPath&gt;.&lt;/ItemXPath&gt; &lt;/Action&gt; &lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;EndList&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;ListName&gt;ItemList&lt;/ListName&gt; &lt;/Action&gt;"></td>
+                  </tr>
+                  <tr>
+                     <td>
+                        <button onclick="copyActionText('NameValue')">Name Values</button>
+                        <input id="NameValue" type="text" readonly style="display:block; position:absolute; left:-9999px" value="&lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;BeginNameValuePairList&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;ItemType&gt;PlaceHolder&lt;/ItemType&gt; &lt;ItemXPath&gt;.&lt;/ItemXPath&gt; &lt;ListName&gt;&lt;/ListName&gt; &lt;PreloadActionNodes&gt;True&lt;/PreloadActionNodes&gt; &lt;HeaderXPath&gt;&lt;/HeaderXPath&gt; &lt;HeaderExpressionInner&gt;%HeaderName%&lt;/HeaderExpressionInner&gt; &lt;ValueXPath&gt;&lt;/ValueXPath&gt; &lt;/Action&gt; &lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;EndList&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;ListName&gt;&lt;/ListName&gt; &lt;/Action&gt;"></td>
+                  </tr>
+                  <tr>
+                     <td>
+                        <button onclick="copyActionText('Table')">Table Capture</button>
+                        <input id="Table" type="text" readonly style="display:block; position:absolute; left:-9999px" value="&lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;BeginTableList&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;ItemType&gt;PlaceHolder&lt;/ItemType&gt; &lt;ItemXPath&gt;&lt;/ItemXPath&gt; &lt;ListName&gt;&lt;/ListName&gt; &lt;PreloadActionNodes&gt;True&lt;/PreloadActionNodes&gt; &lt;HeaderXPath&gt;&lt;/HeaderXPath&gt; &lt;HeaderExpressionInner&gt;%HeaderName%&lt;/HeaderExpressionInner&gt; &lt;CellXPath&gt;&lt;/CellXPath&gt; &lt;HeadersLocation&gt;Top&lt;/HeadersLocation&gt; &lt;/Action&gt; &lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;EndList&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;ListName&gt;&lt;/ListName&gt; &lt;/Action&gt;"></td>
+                  </tr>
+                  <tr>
+                     <td>
+                        <button onclick="copyActionText('Capture')">Capture</button>
+                        <input id="Capture" type="text" readonly style="display:block; position:absolute; left:-9999px" value="&lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;GetElementValue&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;IsCaptureOptional&gt;False&lt;/IsCaptureOptional&gt; &lt;FieldExpression&gt;regex:^(?&amp;lt;Name&amp;gt;(.|\\n)+)$&lt;/FieldExpression&gt; &lt;ItemType&gt;PlaceHolder&lt;/ItemType&gt; &lt;ItemXPath&gt;.&lt;/ItemXPath&gt; &lt;/Action&gt;"></td>
+                  </tr>
+                  <tr>
+                     <td>
+                        <button onclick="copyActionText('Click')">Click Item</button>
+                        <input id="Click" type="text" readonly style="display:block; position:absolute; left:-9999px" value="&lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;ClickElement&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;ItemType&gt;PlaceHolder&lt;/ItemType&gt; &lt;ItemXPath&gt;&lt;/ItemXPath&gt; &lt;ElementID&gt;&lt;/ElementID&gt; &lt;/Action&gt;"></td>
+                  </tr>
+                  <tr>
+                     <td>
+                        <button onclick="copyActionText('SetUser')">Set User Input</button>
+                        <input id="SetUser" type="text" readonly style="display:block; position:absolute; left:-9999px" value="&lt;Action&gt; &lt;ActionID&gt;&lt;/ActionID&gt; &lt;ActionType&gt;SetElementValue&lt;/ActionType&gt; &lt;Page&gt;&lt;/Page&gt; &lt;Value&gt;&lt;/Value&gt; &lt;ItemType&gt;PlaceHolder&lt;/ItemType&gt; &lt;ItemXPath&gt;&lt;/ItemXPath&gt; &lt;ElementName&gt;UrlTextBox&lt;/ElementName&gt; &lt;/Action&gt;"></td>
+                  </tr>
+                  <tr>
+                     <td>
+                        <button onclick="copyActionText('Email')">Notify Email</button>
+                        <input id="Email" type="text" readonly style="display:block; position:absolute; left:-9999px" value="&lt;Action&gt;
+                        &lt;ActionID&gt;Action-42&lt;/ActionID&gt;
+                        &lt;ActionType&gt;NotifyEmail&lt;/ActionType&gt;
+                        &lt;Page&gt;4&lt;/Page&gt;
+                        &lt;CallbackEmail&gt;briton.hainsworth@mozenda.com&lt;/CallbackEmail&gt;
+                        &lt;/Action&gt;
+                        "></td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+        
+        
+
+        
+        <script>
+                function copyActionText(id) {
+                /* Get the text field */
+                var copyText = document.getElementById(id);
+
+                /* Select the text field */
+                copyText.select();
+                copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+
+                /* Copy the text inside the text field */
+                document.execCommand("copy");
+
+                var elem = document.getElementById("checkmark");
+                elem.setAttribute("style", "opacity: 1;");
+
+                setTimeout(function(){
+                    elem.setAttribute("style", "opacity: 0;");
+                    },1000);
+
+                }
+
+                /*var DATA={}, INPUTS=[].slice.call(document.querySelectorAll("table input.td"));
+                INPUTS.forEach(function(elm) {
+                    elm.onfocus = function(e) {
+                        e.target.value = localStorage[e.target.id] || "";
+                    };
+                    elm.onblur = function(e) {
+                        localStorage[e.target.id] = e.target.value;
+                        computeAll();
+                    };
+                    var getter = function() {
+                        var value = localStorage[elm.id] || "";
+                        if (value.charAt(0) == "=") {
+                            with (DATA) return eval(value.substring(1));
+                        } else { return isNaN(parseFloat(value)) ? value : parseFloat(value); }
+                    };
+                    Object.defineProperty(DATA, elm.id, {get:getter});
+                    Object.defineProperty(DATA, elm.id.toLowerCase(), {get:getter});
+                });
+                (window.computeAll = function() {
+                    INPUTS.forEach(function(elm) { try { elm.value = DATA[elm.id]; } catch(e) {} });
+                })();*/
+
+    </script>
+          
+    <style>
+
+        #checkmark {
+            position: fixed;
+            font-size: 40px;
+            left:6vw;
+            top:100px;
+            padding: 7px;
+            background:#2d2d2d;
+            border-radius: 10px;
+            -webkit-transition-duration: .7s; /* Safari */
+            transition-duration: .7s;
+            pointer-events: none;
+        }
+        
+        button {
+            background: #000000;
+            color: white;
+            font-size: 17px;
+            border-width: 0;
+            border-radius: 3px;
+            padding: 5px;
+            width: 150px;
+            -webkit-transition-duration: 0.4s; /* Safari */
+            transition-duration: 0.4s;
+            text-decoration: none;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #666666;
+        }
+
+        body {
+            border: 0;
+            font-family: Barlow, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+            background-color: #3e3e3e;
+        }
+
+        thead {
+            border: solid white;
+        }
+
+        td {
+            color: white;
+            padding: 3px;
+        }
+
+        tbody {
+            width: inherit;
+        }
+    </style>
+          
+	
+</body></html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Mozenda Account Picker</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Barlow">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    </head>
+	<body>
+        <div id="formContainer" style="width:500px;">
+        <form id="accountsForm" onsubmit="return false;">
+            
+            <div style="position:absolute; top:10px; left:17%;">Email:</div>
+            <input style="background:#212121; color:white; border:none; border-radius:10px; position:absolute; top:30px; left:13%; width:300px; padding-top: 10px; padding-bottom:10px; font-size:15px; padding-left:10px;" id="emailInput" type="text"/>
+            
+            <div style="position:absolute; top:80px; left:17%;">Password:</div>
+            <input style="background:#212121; color:white; border:none; border-radius:10px; position:absolute; top:100px; left:13%; width:300px; padding-top: 10px; padding-bottom:10px; font-size:15px; padding-left:10px;" id="passwordInput" type="password" autocomplete="off"/>
+            
+            <div style="position:absolute; top:150px; left:17%;">Select Account:</div>
+            <select id="selectAccounts"style="background:#212121; color:white; border:none; border-radius:10px; position:absolute; top:170px; left:13%; width:310px; padding-top: 10px; padding-bottom:10px; font-size:15px; padding-left:10px; font-size:10px;">
+                <option value="129697" selected="selected">AAA-Masters</option>
+                <option value="164841">AA-DemoAccount</option>
+                <option value="152471">A-AlbanRama</option>
+                <option value="163070">A-AntonSkarga</option>
+                <option value="163908">A-BenTannyhill</option>
+                <option value="145092">A-BritonHainsworth</option>
+                <option value="132697">A-ChandlerEady</option>
+                <option value="151057">A-Competitions</option>
+                <option value="150512">A-ErmiraMurataj</option>
+                <option value="146459">A-InternalUseCases</option>
+                <option value="165106">A-JackieMay</option>
+                <option value="164663">A-JacobHawley</option>
+                <option value="163398">A-JulieTranemose</option>
+                <option value="162608">A-LohithaAdari</option>
+                <option value="163157">A-LorinChun</option>
+                <option value="164664">A-LucasSpeakman</option>
+                <option value="156798">A-TimKrumwiede</option>
+                <option value="142819">A-Webinar</option>
+                <option value="163021">A-WhitneyBrown</option>
+                <option value="163004">BusinessDevelopment</option>
+                <option value="155620">EY-Parthenon</option>
+                <option value="138765">FS-AAGlobalImports</option>
+                <option value="143782">FS-AbelCine</option>
+                <option value="163802">FS-AchieveBeauty</option>
+                <option value="138896">FS-ACPDirect</option>
+                <option value="152837">FS-AEP1</option>
+                <option value="152851">FS-AEP2</option>
+                <option value="152852">FS-AEP3</option>
+                <option value="152853">FS-AEP4</option>
+                <option value="152855">FS-AEP5</option>
+                <option value="152856">FS-AEP6</option>
+                <option value="165351">FS-Albertsons</option>
+                <option value="162999">FS-AlignTechnology</option>
+                <option value="142649">FS-Allianz</option>
+                <option value="165190">FS-Almo</option>
+                <option value="163455">FS-ALN-Demo</option>
+                <option value="157930">FS-AltanaTech</option>
+                <option value="152485">FS-Altisource</option>
+                <option value="162702">FS-AmazonAlexa</option>
+                <option value="164073">FS-AmazonKindle</option>
+                <option value="157391">FS-Amazon-LabelInsight</option>
+                <option value="137615">FS-Ancestry</option>
+                <option value="158594">FS-Apel</option>
+                <option value="154419">FS-ArenaHoldings</option>
+                <option value="163209">FS-Artnet</option>
+                <option value="164120">FS-Artnet-2</option>
+                <option value="164989">FS-Artnet-3</option>
+                <option value="165437">FS-Artnet-4</option>
+                <option value="163610">FS-ArtsConsolidated</option>
+                <option value="159779">FS-AugmentedValue</option>
+                <option value="160099">FS-Autorola</option>
+                <option value="160148">FS-AutorolaInputs</option>
+                <option value="155296">FS-Avalt</option>
+                <option value="162973">FS-AxeonCorporation</option>
+                <option value="158494">FS-Azimuth</option>
+                <option value="158929">FS-Azimuth2</option>
+                <option value="159276">FS-Azimuth3</option>
+                <option value="155150">FS-Bain1</option>
+                <option value="155151">FS-Bain2</option>
+                <option value="155152">FS-Bain3</option>
+                <option value="140573">FS-BainCapital</option>
+                <option value="122972">FS-Bain-Old</option>
+                <option value="162537">FS-BainPaymentProviders</option>
+                <option value="161801">FS-BainTelecom</option>
+                <option value="165193">FS-BainTelecom2</option>
+                <option value="152897">FS-BandAndMe</option>
+                <option value="157950">FS-Belami</option>
+                <option value="139095">FS-BellCanyon</option>
+                <option value="78305">FS-BerwynGroup</option>
+                <option value="150495">FS-BestInBag</option>
+                <option value="161085">FS-BlueRecruit</option>
+                <option value="161712">FS-BlueRecruit2</option>
+                <option value="161994">FS-BlueRecruit3</option>
+                <option value="157048">FS-BMJPublishingGroup</option>
+                <option value="150349">FS-BobsDiscountFurniture</option>
+                <option value="145189">FS-Boevingloh Pilakos</option>
+                <option value="159063">FS-Bose</option>
+                <option value="152026">FS-BrettH-Boats</option>
+                <option value="150475">FS-BSP-Auto</option>
+                <option value="140485">FS-BuildingBlocks</option>
+                <option value="139402">FS-BuyingIntelligence</option>
+                <option value="163793">FS-BypseaInc</option>
+                <option value="113026">FS-CardifPinnacle</option>
+                <option value="155598">FS-Carlisle</option>
+                <option value="122198">FS-CarsCom</option>
+                <option value="164137">FS-Cedars</option>
+                <option value="145095">FS-CelebrityTalentPromotions</option>
+                <option value="149939">FS-ChangeHealth</option>
+                <option value="155636">FS-ChangeHealth-Novant</option>
+                <option value="153520">FS-ChaturvediMedicine</option>
+                <option value="158305">FS-ChromeMigration</option>
+                <option value="158589">FS-ChromeMigration-Manzama</option>
+                <option value="132677">FS-Cisco</option>
+                <option value="129702">FS-CiscoPartners</option>
+                <option value="143724">FS-CitiEquity</option>
+                <option value="132410">FS-Clos Du Val Wine</option>
+                <option value="163711">FS-ColdRiver</option>
+                <option value="162881">FS-Comscore</option>
+                <option value="146906">FS-ContrarianCapital</option>
+                <option value="165346">FS-CortevaAgriscience</option>
+                <option value="162396">FS-CrateandBarrel</option>
+                <option value="74389">FS-CrescendoVentures</option>
+                <option value="141129">FS-Crisp</option>
+                <option value="159686">FS-CSTL</option>
+                <option value="165274">FS-DaneCapital</option>
+                <option value="164405">FS-DarakjianJewellers</option>
+                <option value="156844">FS-Daybat</option>
+                <option value="109135">FS-DealerTire</option>
+                <option value="154969">FS-Deecoob</option>
+                <option value="154808">FS-Dell-Crawler</option>
+                <option value="155101">FS-DennisGleason</option>
+                <option value="155887">FS-DigitalAirStrikeDaily</option>
+                <option value="155522">FS-DigitalAirStrikeHistorical</option>
+                <option value="141638">FS-DisneyWorld</option>
+                <option value="161272">FS-Dollarama</option>
+                <option value="155853">FS-DTIC</option>
+                <option value="131451">FS-DynamicTire</option>
+                <option value="126266">FS-EagleCrest</option>
+                <option value="158331">FS-ecoATM</option>
+                <option value="162245">FS-Edjuster</option>
+                <option value="163196">FS-Edjuster2</option>
+                <option value="164020">FS-Edjuster3</option>
+                <option value="164021">FS-Edjuster4</option>
+                <option value="164237">FS-Edjuster5</option>
+                <option value="151120">FS-EduDataHub</option>
+                <option value="158489">FS-ElliottAdvisorsUK</option>
+                <option value="148340">FS-ElliottManagement</option>
+                <option value="162937">FS-Engage3</option>
+                <option value="165186">FS-Engage3-Bunnings-RFP</option>
+                <option value="165321">FS-Engage3Delivery</option>
+                <option value="165322">FS-Engage3Delivery2</option>
+                <option value="164408">FS-Engage3-POC</option>
+                <option value="164690">FS-Engage3-Walmart</option>
+                <option value="159982">FS-ERG</option>
+                <option value="149856">FS-EYParthenon</option>
+                <option value="162360">FS-Facebook-Test</option>
+                <option value="155700">FS-FarylRobin</option>
+                <option value="155504">FS-Fellers</option>
+                <option value="149973">FS-FIGAdvisors</option>
+                <option value="140518">FS-FiscalNote</option>
+                <option value="155067">FS-FoodAndSupplies</option>
+                <option value="154888">FS-FoodChain</option>
+                <option value="154328">FS-FranklinSports</option>
+                <option value="160395">FS-FRS</option>
+                <option value="155480">FS-GasStationStudy</option>
+                <option value="157768">FS-GlobalSpecIEEE</option>
+                <option value="152330">FS-GlobalTruckAndMachine</option>
+                <option value="128351">FS-GoldmanSachs</option>
+                <option value="151436">FS-Gordian</option>
+                <option value="157694">FS-GoTravelCompendium</option>
+                <option value="147687">FS-Healthgrades</option>
+                <option value="163355">FS-HewletPackard</option>
+                <option value="159628">FS-HoffmanHoffman</option>
+                <option value="161841">FS-Holocene</option>
+                <option value="147847">FS-HomeSourceSystems</option>
+                <option value="147413">FS-HorizonConsumerScience</option>
+                <option value="162405">FS-Hubble</option>
+                <option value="78913">FS-IArchives</option>
+                <option value="163368">FS-IArchives-2</option>
+                <option value="164078">FS-IArchives-3</option>
+                <option value="150517">FS-InconLighting</option>
+                <option value="160850">FS-Innoscape</option>
+                <option value="147508">FS-IntersectionTechnologies</option>
+                <option value="119080">FS-Intuit</option>
+                <option value="153357">FS-Jegs</option>
+                <option value="164745">FS-JM Bullion</option>
+                <option value="130126">FS-Jobs-DataFeed</option>
+                <option value="135312">FS-Jobs-DataFeeds-Companies</option>
+                <option value="161056">FS-JobsInOrtho</option>
+                <option value="161478">FS-JohnBurnsRealEstate</option>
+                <option value="147568">FS-Kaman</option>
+                <option value="162988">FS-Kaman2</option>
+                <option value="78753">FS-KBMailers</option>
+                <option value="162990">FS-KBMailers2</option>
+                <option value="156523">FS-KeystoneSports</option>
+                <option value="128483">FS-Kloninger and Sims</option>
+                <option value="156830">FS-Konnected</option>
+                <option value="158797">FS-KormanLLC</option>
+                <option value="149352">FS-KPMG</option>
+                <option value="155506">FS-Krowdsourced</option>
+                <option value="161039">FS-Lavamaps</option>
+                <option value="145225">FS-Leidos</option>
+                <option value="163005">FS-LennoxInternational</option>
+                <option value="142798">FS-LeopardSolutions</option>
+                <option value="164673">FS-LifetimePetCover</option>
+                <option value="145744">FS-Lipscomb</option>
+                <option value="160394">FS-LivingProof</option>
+                <option value="163988">FS-Loreal</option>
+                <option value="165577">FS-LorealGlobal</option>
+                <option value="141249">FS-MAiResearch</option>
+                <option value="154634">FS-MansourGroup</option>
+                <option value="150950">FS-MaritzCX</option>
+                <option value="161445">FS-MarsAgency</option>
+                <option value="161407">FS-Mattel</option>
+                <option value="160269">FS-MaxFinkelstein</option>
+                <option value="146598">FS-MaxSold</option>
+                <option value="144527">FS-McGrawHill</option>
+                <option value="142309">FS-McKinsey</option>
+                <option value="164173">FS-McKinseyEthan</option>
+                <option value="156693">FS-Medco</option>
+                <option value="163734">FS-MilwaukeeTool</option>
+                <option value="149304">FS-Mitre</option>
+                <option value="152866">FS-MMM</option>
+                <option value="161191">FS-MOODYS</option>
+                <option value="156941">FS-MurphyHoffmanCompany</option>
+                <option value="131336">FS-MusicMelter</option>
+                <option value="134474">FS-MXPowerPlay</option>
+                <option value="156062">FS-MySocialEyes</option>
+                <option value="79296">FS-NebraskaBook</option>
+                <option value="116460">FS-NebraskaBook-Input</option>
+                <option value="129647">FS-NewspaperArchive-AdvantagePreservatio</option>
+                <option value="123162">FS-NewspaperArchives</option>
+                <option value="129176">FS-NewspaperArchives-Legacy</option>
+                <option value="157316">FS-North By Northwest Sales</option>
+                <option value="152329">FS-NPD</option>
+                <option value="165345">FS-ObjectivelyGood</option>
+                <option value="153048">FS-OCTanner</option>
+                <option value="162150">FS-OneClick</option>
+                <option value="133381">FS-ONETIME1</option>
+                <option value="160867">FS-ONETIME2</option>
+                <option value="160916">FS-ONETIME-CommonReruns</option>
+                <option value="150999">FS-OneTime-Tirana</option>
+                <option value="133365">FS-OnlineRepublic</option>
+                <option value="160999">FS-OPUS</option>
+                <option value="159664">FS-OutboundEngine</option>
+                <option value="162989">FS-OutboundEngine2</option>
+                <option value="163619">FS-Panasonic</option>
+                <option value="164098">FS-Paradygm</option>
+                <option value="162171">FS-Paramount</option>
+                <option value="164744">FS-Paramount2</option>
+                <option value="159077">FS-PartnerCentric</option>
+                <option value="159629">FS-PartnerCentric2</option>
+                <option value="159983">FS-PartnerCentric3</option>
+                <option value="160228">FS-PartnerCentric4</option>
+                <option value="160261">FS-PartnerCentric5</option>
+                <option value="162553">FS-PartnerCentric6</option>
+                <option value="151694">FS-PCM</option>
+                <option value="160052">FS-Permira</option>
+                <option value="161102">FS-Permira-Inputs</option>
+                <option value="149921">FS-Phigora</option>
+                <option value="155534">FS-PlumbingSupply</option>
+                <option value="128489">FS-Powerbox</option>
+                <option value="152915">FS-PracticeMH</option>
+                <option value="162465">FS-Primrose</option>
+                <option value="161989">FS-Principia</option>
+                <option value="126427">FS-Progressive</option>
+                <option value="126426">FS-Progressive-Input</option>
+                <option value="164780">FS-Prolock-MAXPREPS</option>
+                <option value="154491">FS-PropertyMonitor</option>
+                <option value="153213">FS-PropertySauce</option>
+                <option value="155656">FS-PublicRelay</option>
+                <option value="152058">FS-PWC</option>
+                <option value="164356">FS-PWCUK</option>
+                <option value="155835">FS-QuickStrikeApp</option>
+                <option value="163562">FS-RealTestedCBD</option>
+                <option value="127523">FS-RecoveredAssetAdvisors</option>
+                <option value="155410">FS-Recruitsme</option>
+                <option value="114439">FS-RediData</option>
+                <option value="162425">FS-RegalBenoit</option>
+                <option value="151065">FS-ReviewTrackers-Historical</option>
+                <option value="151734">FS-ReviewTrackers-Recurring</option>
+                <option value="156077">FS-RockwellAutomation</option>
+                <option value="158458">FS-RolandBerger</option>
+                <option value="142408">FS-RossStores</option>
+                <option value="150024">FS-SafeGraph</option>
+                <option value="150896">FS-SafeGraph2</option>
+                <option value="151237">FS-SafeGraph3</option>
+                <option value="152694">FS-SafeGraph4</option>
+                <option value="152595">FS-SafeGraphCustom</option>
+                <option value="161903">FS-Samsung</option>
+                <option value="162561">FS-SamsungNordics</option>
+                <option value="159419">FS-SaroLifestyle</option>
+                <option value="136413">FS-Schindler</option>
+                <option value="165334">FS-Senex</option>
+                <option value="139561">FS-SESAC</option>
+                <option value="161935">FS-SigmaXI</option>
+                <option value="158207">FS-SKUWorld</option>
+                <option value="127313">FS-SMG</option>
+                <option value="153122">FS-Snapbox</option>
+                <option value="150372">FS-Solutions2Go</option>
+                <option value="132400">FS-Sound Distributors</option>
+                <option value="153757">FS-Spartanburg</option>
+                <option value="155654">FS-Speculative</option>
+                <option value="148034">FS-SPGlobal</option>
+                <option value="152104">FS-Sportlas</option>
+                <option value="155271">FS-StackOverflow</option>
+                <option value="91847">FS-StarrFox-Jobs</option>
+                <option value="131140">FS-StarrFox-Resumes-Indeed</option>
+                <option value="122681">FS-StarrFox-Resumes-LinkedIn</option>
+                <option value="136379">FS-Stellar</option>
+                <option value="117609">FS-StrategyAnalytics</option>
+                <option value="117610">FS-StrategyAnalytics-Input</option>
+                <option value="117007">FS-StripesGroup</option>
+                <option value="117013">FS-StripesGroup-Input</option>
+                <option value="165382">FS-SupplyHouse</option>
+                <option value="136011">FS-TalentIntelligence</option>
+                <option value="85692">FS-TantorMediaInc</option>
+                <option value="134070">FS-TeconomyPartners</option>
+                <option value="156310">FS-TheEdge</option>
+                <option value="165277">FS-TheStable</option>
+                <option value="140302">FS-ThriveHive</option>
+                <option value="151345">FS-Tiket</option>
+                <option value="163080">FS-Timken</option>
+                <option value="159043">FS-Tradelink</option>
+                <option value="163533">FS-TravisMatthew</option>
+                <option value="155369">FS-TripAdvisor</option>
+                <option value="162941">FS-TriWestHealthcareAlliance</option>
+                <option value="79914">FS-UEA</option>
+                <option value="155273">FS-Unigroup</option>
+                <option value="154189">FS-USAutoForce</option>
+                <option value="159249">FS-USTrademarkComplianceOffice</option>
+                <option value="157887">FS-Verisk</option>
+                <option value="109594">FS-VerisysCorporation</option>
+                <option value="163403">FS-Viagogo</option>
+                <option value="156854">FS-Volta Global</option>
+                <option value="161146">FS-WalkerEdison</option>
+                <option value="163779">FS-WalkerEdison2</option>
+                <option value="156240">FS-Weave</option>
+                <option value="148658">FS-WeberShandwick</option>
+                <option value="161226">FS-WESCO</option>
+                <option value="159908">FS-WesternUnion</option>
+                <option value="145091">FS-WoltersKluwer</option>
+                <option value="128760">FS-ZaydaCo</option>
+                <option value="163783">FS-ZurcherTire</option>
+                <option value="134283">JobsDataFeed-Engineering</option>
+                <option value="162469">MarsAgency-Inputs</option>
+                <option value="154984">Mozenda</option>
+                <option value="158274">Tirana-Services-Practice</option>
+            </select>
+            <div style="position:absolute; top:210px; left:17%;">or Enter Account ID:</div>
+            <input id="customAccountID" style="background:#212121; color:white; border:none; border-radius:10px; position:absolute; top:230px; left:13%; width:300px; padding-top: 10px; padding-bottom:10px; padding-left:10px; font-size:10px;" />
+            
+            <input class="submit" style="position:absolute; top:280px; left:37%; width:100px; border:none; border-radius:10px; " type="submit" value="Open" onclick="openNewTab();" />
+        </form>             
+            
+        </div>
+
+        <script>
+            
+            var oldEmail = localStorage.getItem("emailInput");
+            document.querySelector("#emailInput").value = oldEmail;
+            var oldPassword = localStorage.getItem("passwordInput");
+            document.querySelector("#passwordInput").value = oldPassword;
+            
+            $("#selectAccounts").change(function(){
+                
+                var oldSelection = document.querySelector('option[selected="selected"]');
+                
+                if (oldSelection) {
+                    oldSelection.remove();
+                }
+                
+                var optionValue = $(this).val();
+                var chosenOption = document.querySelector('option[value="' + optionValue + '"]');
+                chosenOption.setAttribute("selected","selected");
+            });
+            
+            function openNewTab() {
+                var customAccount = document.getElementById("customAccountID").value;
+                var selectedAccount
+                
+                if (customAccount != "") {
+                    selectedAccount = customAccount;
+            
+                } else selectedAccount = document.querySelector('option[selected="selected"]').value;
+                
+                var email = document.getElementById("emailInput").value;
+                var password = document.getElementById("passwordInput").value;
+                var accountURL= "https://www.mozenda.com/login?email=" + email + "&password=" + password + "&accountid=" + selectedAccount;
+                
+                localStorage.setItem("emailInput",document.querySelector("#emailInput").value);
+                localStorage.setItem("passwordInput",document.querySelector("#passwordInput").value);
+                
+                window.open(accountURL, '_blank');
+            }
+        </script>
+        
+          
+    <style>
+        
+        #formContainer input:hover, select:hover {
+            filter: invert(30%);
+        }
+
+        #copyText {
+            padding-top: 100px;
+        }
+        
+        #tinyText {
+            font-size: 10px;
+        }
+        
+        form input.submit {
+            background-color: darkgray !important;
+            border-radius: 3px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            font-size: 10px;
+        }
+        
+        li {
+            list-style: none;
+        }
+        li:before {
+            content: "✓ ";
+        }
+
+        #tableContainer input {
+            background-color: #171717;
+            color: white;
+            border: none;
+            width: 80px;
+            font-size: 14px;
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        #tableContainer input:hover {
+            background-color: black;
+        }
+
+        #tableContainer input:focus {
+            background-color: gray;
+        }
+
+        #tableContainer input:not(:focus) {
+            text-align: right;
+        }
+
+        table {
+            border-collapse: collapse;  
+        }
+
+        td {
+            /*border: 1px solid #999;*/
+            padding: 0;
+        }
+
+        tr:first-child td, td:first-child {
+            background-color: #171717;
+            padding: 1px 3px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        tr:first-child td {
+            background-color: #171717;
+            padding: 10px 3px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        
+        
+        
+        
+        
+         
+        
+        body {
+            border: 0;
+            font-family: Barlow, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+            background-color: #3e3e3e;
+            height:200px;
+            width:200px;
+        }
+
+        thead {
+            border: solid white;
+        }
+
+        td {
+            color: white;
+            padding: 3px;
+        }
+
+        tbody {
+            width: inherit;
+        }
+
+        .darker {
+            background: #181818;
+        }
+
+        tbody tr:hover {
+            background: #383838;
+        }
+
+        @media screen and (max-width: 750px) {body{zoom: 150%;}}
+        
+        #tableContainer {
+        zoom: 1.8; 
+        -moz-transform: scale(1.8); 
+        -moz-transform-origin: 0 0;
+        }
+        
+        #formContainer {
+        zoom: 1.8; 
+        -moz-transform: scale(1.8); 
+        -moz-transform-origin: 0 0;
+        }
+        
+        #colorPage div {
+            display:inline;float:left;padding:5px;
+        }
+        
+        #clearSheet{
+            display:block;
+            float:left;
+            margin-top:10px
+        }
+
+
+    </style>
+          
+	</body>
+</html>

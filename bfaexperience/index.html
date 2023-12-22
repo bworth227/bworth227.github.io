@@ -1,0 +1,311 @@
+<html>
+<head>
+    <title>Briton Hainsworth BFA Experience</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body onload="hideMuteIfIphone();">
+    <div id="allVideos">
+        <div id="disabler">
+            <img src="videos/0Loop.png" id="0png"/>
+            <video id="0Loop" class="loop" playsinline loop style="display:none;">
+              <source src="videos/0Loop.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="1Tran" class="tran" playsinline style="display:none;">
+              <source src="videos/1Tran.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="1Loop" class="loop" playsinline loop style="display:none;">
+              <source src="videos/1Loop.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="2Tran" class="tran" playsinline style="display:none;">
+              <source src="videos/2Tran.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="2Loop" class="loop" playsinline loop style="display:none;">
+              <source src="videos/2Loop.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="3Tran" class="tran" playsinline style="display:none;">
+              <source src="videos/3Tran.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="3Loop" class="loop" playsinline loop style="display:none;">
+              <source src="videos/3Loop.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="4Tran" class="tran" playsinline style="display:none;">
+              <source src="videos/4Tran.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="4Loop" class="loop" playsinline loop style="display:none;">
+              <source src="videos/4Loop.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="5Tran" class="tran" playsinline style="display:none;">
+              <source src="videos/5Tran.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="5Loop" class="loop" playsinline loop style="display:none;">
+              <source src="videos/5Loop.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="6Tran" class="tran" playsinline style="display:none;">
+              <source src="videos/6Tran.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="6Loop" class="loop" playsinline loop style="display:none;">
+              <source src="videos/6Loop.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <video id="7Tran" class="tran" playsinline style="display:none;">
+              <source src="videos/7Tran.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            
+        </div>
+        <div id="buttons">
+            <button id="begin" onclick="begin();">Begin!</button>
+            <button id="next" onclick="advanceVids();" style="display:none;">Next Scene</button>
+            <button id="mute" onclick="muteUnmute(0);" style="display:nones;">
+                <img src="http://upload.wikimedia.org/wikipedia/commons/2/21/Speaker_Icon.svg" alt="Speaker_Icon.svg" title="Unmute/speaker icon">
+            </button>
+            <button id="unmute" onclick="muteUnmute(1);" style="display:none;">
+                <img src="http://upload.wikimedia.org/wikipedia/commons/3/3f/Mute_Icon.svg" alt="Mute_Icon.svg" title="Mute icon">
+            </button>
+            <!--<p id="disclaimer" style="display:none;">(This scene will eventually be animated and have text, etc.)</p>-->
+        </div>
+    </div>
+    
+    <script>
+        var curVid = document.getElementById("allVideos").getElementsByTagName("video")[0];
+        
+        function advanceVids() {
+            document.getElementById("next").setAttribute("disabled","");
+            displayNext("tran");
+            var duration = curVid.duration;
+            setTimeout(function(){ 
+                displayNext("loop"); 
+                document.getElementById("next").removeAttribute("disabled");
+            }, duration * 1000 + 300);
+        }
+        
+        function displayNext(type) {
+            curVid.setAttribute("style","display:none;");
+            curVid.pause();
+            curVid.currentTime = 0;
+            curVid = getNextSibling(curVid, type);
+            if (!curVid) {
+                curVid = document.getElementById("allVideos").getElementsByTagName("video")[0];
+            }
+            /*if (curVid.className == "loop" && curVid.id != "4Loop") {
+                document.getElementById("disclaimer").removeAttribute("style");
+            } else {
+                document.getElementById("disclaimer").setAttribute("style","display:none;");
+            }*/
+            curVid.removeAttribute("style");
+            curVid.play();
+        }
+        
+        function getNextSibling(elem, selector) {
+
+            // Get the next sibling element
+            var sibling = elem.nextElementSibling;
+
+            // If the sibling matches our selector, use it
+            // If not, jump to the next sibling and continue the loop
+            while (sibling) {
+                if (sibling.className == selector) return sibling;
+                sibling = sibling.nextElementSibling;
+            }
+
+        };
+        
+        function loadAllVids() {
+            var vids = document.getElementById("allVideos").getElementsByTagName("video");
+            
+            for (var i = 0; i < vids.length; i++) {
+                vids[i].play();
+                vids[i].pause();
+                vids[i].currentTime = 0;
+            }
+        }
+        
+        function begin() {
+            loadAllVids();
+            document.getElementById("allVideos").getElementsByTagName("video")[0].play();
+            document.getElementById("begin").setAttribute("style","display:none;");
+            document.getElementById("0Loop").removeAttribute("style");
+            document.getElementById("0png").setAttribute("style","display:none;");
+            document.getElementById("next").removeAttribute("style");
+            //document.getElementById("disclaimer").removeAttribute("style");
+        }
+        
+        function muteUnmute(volLevel) {
+            var vids = document.getElementsByTagName("video");
+            
+            for (var i = 0; i < vids.length; i++) {
+                vids[i].volume = volLevel;
+                if (volLevel == 0) {
+                    vids[i].setAttribute("muted", "");
+                } else {
+                    vids[i].removeAttribute("muted");
+                }
+            }
+            
+            if (volLevel == 0) {
+                document.getElementById("mute").setAttribute("style", "display:none");
+                document.getElementById("unmute").removeAttribute("style");
+            } else {
+                document.getElementById("unmute").setAttribute("style", "display:none");
+                document.getElementById("mute").removeAttribute("style");
+            }
+        }
+        
+        function hideMuteIfIphone() {
+            var appleDevices = ['iPad', 'iPhone', 'iPod'];
+
+            for (var i = 0; i < appleDevices.length; i++) {
+                if (appleDevices[i] == navigator.platform) {
+                    document.getElementById("mute").remove();
+                }
+            }
+        }
+        
+        hideMuteIfIphone();
+    </script>
+    <style>
+        
+        
+        @media screen and (max-width: 1150px) {
+            #allVideos {
+                height: auto !important;
+                width: 80% !important;
+            }
+            
+            #allVideos video {
+                height: auto !important;
+                width: 80% !important;
+            }
+            
+            #allVideos img {
+                height: auto !important;
+                width: 80% !important;
+            }
+        }
+        
+        @media screen and (max-width: 800px) {
+            #allVideos {
+                height: auto !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            
+            #allVideos video {
+                height: auto !important;
+                width: 100% !important;
+            }
+            
+            #allVideos img {
+                height: auto !important;
+                width: 100% !important;
+            }
+            
+            button {
+                margin-top: 20px !important;
+                height: 75px !important;
+                width: 150px !important;
+            }
+        }
+        
+        body {
+            /*background: #111111;*/
+            background: none;
+            color: white;
+            /*background-image: url("videos/SiteBackground.png");*/
+        }
+        
+        button {
+            margin-top: 20px;
+            height: 70px;
+            width: 150px;
+            color: white;
+            font-size: 15px;
+            background: #3c3c3c;
+            border: none;
+            margin-left: 50%;
+            border-radius: 10px;
+        }
+        
+        button:disabled {
+            background: #1f1f1f;
+            color: #2f2f2f;
+        }
+        
+        #allVideos {
+            height: 80%;
+            margin: auto;
+            width: 50%;
+            padding: 10px;
+        }
+        
+        #allVideos * {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        
+        #allVideos video {
+            height: 100%;
+            border-radius: 20px;
+        }
+        
+        #allVideos img {
+            height: 100%;
+            border-radius: 20px;
+        }
+        
+        
+        p {
+            width: 400px;
+        }
+        
+        #disabler {
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        #buttons {
+            position: relative;
+        }
+        
+        #mute {
+            width: 10% !important;
+            background: none;
+            position: absolute;
+            top: -20;
+            right: 17%;
+        }   
+        
+        #unmute {
+            width: 10% !important;
+            background: none;
+            position: absolute;
+            top: -20;
+            right: 17%;
+        } 
+        
+        #mute > img {
+            width: 50px !important;
+            filter: invert(.7);
+        }   
+        
+        #unmute > img {
+            width: 50px !important;
+            filter: invert(.7);
+        }  
+        
+    </style>
+</body>
+</html>

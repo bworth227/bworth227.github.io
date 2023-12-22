@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Battleship Scores</title>
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+        </script>
+	</head>
+	<body>
+    
+    <div id="bodyContainer">
+    <h1>Current Recorded Scores:</h1>
+    <h5>(hit ctrl + refresh if your score isn't showing here)</h5>
+        
+    <br>
+    <form action="http://britonh.com/battleship/" method="POST">
+    <input type="submit" value="Back to Game" />
+    </form>
+        <br>
+        <input type="button" value="Sort by Best Score" onClick="scoreOrder()" class="scoreBoardButton">
+        <br>
+        <br>
+        
+    <div id="currentScores">
+        </div>
+        
+    </div>
+        
+    <style>
+        
+        #currentScores {
+            white-space: pre-wrap;
+        }
+        
+        body {
+            background-color: #212121;
+            color: white;
+            font-family: helvetica, sans-serif;
+            vertical-align: middle;
+        }
+        
+        #bodyContainer {
+            width: 50%;
+            padding-left: 5%;
+            align-content: center;
+        }
+        
+    </style>
+	
+	<script type="text/javascript" src="scoreboard.js"></script>
+	</body>
+</html>

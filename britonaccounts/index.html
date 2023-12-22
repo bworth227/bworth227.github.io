@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Mozenda Account Picker</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Barlow">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    </head>
+	<body>
+        <div id="formContainer" style="width:500px;">
+        <form id="accountsForm" onsubmit="return false;">
+            
+            <div style="position:absolute; top:10px; left:17%;">Email:</div>
+            <input style="background:#212121; color:white; border:none; border-radius:10px; position:absolute; top:30px; left:13%; width:300px; padding-top: 10px; padding-bottom:10px; font-size:15px; padding-left:10px;" id="emailInput" type="text"/>
+            
+            <div style="position:absolute; top:80px; left:17%;">Password:</div>
+            <input style="background:#212121; color:white; border:none; border-radius:10px; position:absolute; top:100px; left:13%; width:300px; padding-top: 10px; padding-bottom:10px; font-size:15px; padding-left:10px;" id="passwordInput" type="password" autocomplete="off"/>
+            
+            <div style="position:absolute; top:150px; left:17%;">Select Account:</div>
+            <select id="selectAccounts"style="background:#212121; color:white; border:none; border-radius:10px; position:absolute; top:170px; left:13%; width:310px; padding-top: 10px; padding-bottom:10px; font-size:15px; padding-left:10px; font-size:10px;">
+                <option value="129697">AAA-MasterServicesAccount</option>
+                <option value="145092">A-BritonHainsworth</option>
+                <option value="142649">FS-Allianz</option>
+                <option value="122972">FS-Bain</option>
+                <option value="150475">FS-BSP-Auto</option>
+                <option value="146906">FS-ContrarianCapital</option>
+                <option value="141129">FS-Crisp</option>
+                <option value="126266">FS-Eagle Crest Resort Development LLC</option>
+                <option value="149973">FS-FIGAdvisors</option>
+                <option value="151436">FS-Gordian</option>
+                <option value="147687">FS-Healthgrades</option>
+                <option value="133381">FS-ONETIME</option>
+                <option value="128489">FS-Powerbox</option>
+                <option value="151065">FS-ReviewTrackers-Historical</option>
+                <option value="151734">FS-ReviewTrackers-Recurring</option>
+                <option value="150024">FS-SafeGraph</option>
+                <option value="150896">FS-SafeGraph2</option>
+                <option value="151237">FS-SafeGraph3</option>
+                <option value="150372">FS-Solutions2Go</option>
+                <option value="145091">FS-WoltersKluwer</option>
+            </select>
+            <div style="position:absolute; top:210px; left:17%;">or Enter Account ID:</div>
+            <input id="customAccountID" style="background:#212121; color:white; border:none; border-radius:10px; position:absolute; top:230px; left:13%; width:300px; padding-top: 10px; padding-bottom:10px; padding-left:10px; font-size:10px;" />
+            
+            <input class="submit" style="position:absolute; top:280px; left:37%; width:100px; border:none; border-radius:10px; " type="submit" value="Open" onclick="openNewTab();" />
+        </form>             
+            
+        </div>
+
+        <script>
+            
+            var oldEmail = localStorage.getItem("emailInput");
+            document.querySelector("#emailInput").value = oldEmail;
+            var oldPassword = localStorage.getItem("passwordInput");
+            document.querySelector("#passwordInput").value = oldPassword;
+            
+            $("#selectAccounts").change(function(){
+                
+                var oldSelection = document.querySelector('option[selected="selected"]');
+                
+                if (oldSelection) {
+                    oldSelection.remove();
+                }
+                
+                var optionValue = $(this).val();
+                var chosenOption = document.querySelector('option[value="' + optionValue + '"]');
+                chosenOption.setAttribute("selected","selected");
+            });
+            
+            function openNewTab() {
+                var customAccount = document.getElementById("customAccountID").value;
+                var selectedAccount
+                
+                if (customAccount != "") {
+                    selectedAccount = customAccount;
+            
+                } else selectedAccount = document.querySelector('option[selected="selected"]').value;
+                
+                var email = document.getElementById("emailInput").value;
+                var password = document.getElementById("passwordInput").value;
+                var accountURL= "https://www.mozenda.com/login?email=" + email + "&password=" + password + "&accountid=" + selectedAccount;
+                
+                localStorage.setItem("emailInput",document.querySelector("#emailInput").value);
+                localStorage.setItem("passwordInput",document.querySelector("#passwordInput").value);
+                
+                window.open(accountURL, '_blank');
+            }
+        </script>
+        
+          
+    <style>
+        
+        #formContainer input:hover, select:hover {
+            filter: invert(30%);
+        }
+
+        #copyText {
+            padding-top: 100px;
+        }
+        
+        #tinyText {
+            font-size: 10px;
+        }
+        
+        form input.submit {
+            background-color: darkgray !important;
+            border-radius: 3px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            font-size: 10px;
+        }
+        
+        li {
+            list-style: none;
+        }
+        li:before {
+            content: "✓ ";
+        }
+
+        #tableContainer input {
+            background-color: #171717;
+            color: white;
+            border: none;
+            width: 80px;
+            font-size: 14px;
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        #tableContainer input:hover {
+            background-color: black;
+        }
+
+        #tableContainer input:focus {
+            background-color: gray;
+        }
+
+        #tableContainer input:not(:focus) {
+            text-align: right;
+        }
+
+        table {
+            border-collapse: collapse;  
+        }
+
+        td {
+            /*border: 1px solid #999;*/
+            padding: 0;
+        }
+
+        tr:first-child td, td:first-child {
+            background-color: #171717;
+            padding: 1px 3px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        tr:first-child td {
+            background-color: #171717;
+            padding: 10px 3px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        
+        
+        
+        
+        
+         
+        
+        body {
+            border: 0;
+            font-family: Barlow, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+            background-color: #3e3e3e;
+            height:200px;
+            width:200px;
+        }
+
+        thead {
+            border: solid white;
+        }
+
+        td {
+            color: white;
+            padding: 3px;
+        }
+
+        tbody {
+            width: inherit;
+        }
+
+        .darker {
+            background: #181818;
+        }
+
+        tbody tr:hover {
+            background: #383838;
+        }
+
+        @media screen and (max-width: 750px) {body{zoom: 150%;}}
+        
+        #tableContainer {
+        zoom: 1.8; 
+        -moz-transform: scale(1.8); 
+        -moz-transform-origin: 0 0;
+        }
+        
+        #formContainer {
+        zoom: 1.8; 
+        -moz-transform: scale(1.8); 
+        -moz-transform-origin: 0 0;
+        }
+        
+        #colorPage div {
+            display:inline;float:left;padding:5px;
+        }
+        
+        #clearSheet{
+            display:block;
+            float:left;
+            margin-top:10px
+        }
+
+
+    </style>
+          
+	</body>
+</html>

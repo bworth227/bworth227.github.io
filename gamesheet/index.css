@@ -1,0 +1,411 @@
+html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    border: 0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    color: white;
+    background-color: #3e3e3e !important;
+    /*zoom: 1.5;
+    -moz-transform: scale(2); 
+    -moz-transform-origin: 0 0;
+    transform: scale(1.5);
+    transform-origin: 0 0;*/
+    max-width: 500px;
+}
+/*
+@media screen and (max-width: 1000px) {
+    body {
+        zoom: 3;
+        /*-moz-transform: scale(3); 
+        -moz-transform-origin: 0 0;
+        transform: scale(3);
+        transform-origin: 0 0;
+        max-width: 500px !important;
+    }
+}
+*/
+td {
+    color: white;
+    padding: 9px;
+}
+
+tbody, thead {
+    width: inherit;
+}
+
+tbody, thead tr:hover {
+    background: #383838;
+}
+
+#copyText {
+    padding-top: 300px;
+}
+
+#tinyText {
+    font-size: 30px;
+}
+
+form input.submit {
+    background-color: darkgray !important;
+    border-radius: 9px;
+    padding-top: 45px;
+    padding-bottom: 45px;
+    font-size: 45px;
+}
+
+li {
+    list-style: none;
+}
+
+#tableContainer {
+    padding-bottom: 450px;
+    margin: 15px;
+    display: flex;
+}
+
+
+#innerTableContainer {
+    display: flex;
+}
+
+#tableContainer input {
+    background-color: #171717;
+    color: white;
+    border: none;
+    width: 240px;
+    font-size: 42px;
+    padding: 6px;
+    border-radius: 9px;
+}
+
+input:hover {
+    filter: brightness(70%);
+}
+
+#tableContainer input:focus {
+    background-color: gray;
+}
+
+#tableContainer th input:focus::before {
+    content: "X";
+}
+
+/*
+#tableContainer input:not(:focus) {
+    text-align: right;
+}*/
+
+#mainTable {
+    border-collapse: collapse;
+}
+
+#addColBar {
+    width: 150px;
+    background: #171717;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+    margin-right: 15px;
+}
+
+#addColBar:hover {
+    background: #000000;
+}
+
+tr th, th:first-child, td:first-child {
+    background-color: #171717;
+    padding: 3px 9px;
+    font-weight: bold;
+    text-align: center;
+}
+
+thead th { 
+    position: sticky;
+    top: 0;
+    /*
+    border-bottom: 10px solid white !important;
+    border-collapse: separate;*/
+}
+
+th:not(:first-child):after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+th:not(:first-child):after {
+  bottom: 0;
+  border-bottom: 9px solid #373636;
+}
+
+/*
+th input {
+    text-align: center !important;
+}*/
+
+tr th {
+    background-color: #171717;
+    padding: 30px 9px;
+    font-weight: bold;
+    text-align: center;
+}
+
+td {
+    font-size: 42px;
+}
+
+input {
+    text-align: center;
+    font-size: 42px;
+}
+
+/*Totals row*/
+tbody tr:last-child td {
+    background-color: #171717;
+    padding: 21px 9px;
+}
+
+/*Totals row inputs*/
+tbody tr:last-child td input {
+    background-color: #3e3e3e !important;
+    height: 90px;
+}
+
+#plus {
+    text-align: center;
+    font-size: 150px;
+    position: sticky;
+    top: 210px;
+}
+
+#Total-Corner {
+    border-bottom-left-radius: 30px;
+    font-size: 90px;
+    padding: 0px 66px 0px 66px;
+    padding-bottom: 24px;
+}
+
+#Total-Corner:hover {
+    background-color: black;
+}
+
+.last_base_td:hover {
+    background-color: black;
+}
+
+#deletePlayer {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    font-size: 60px;
+    text-align: left;
+    top: 0px;
+}
+
+#quickActions {
+    position: fixed;
+    left: 15px;
+    bottom: 15px;
+    background:#5f5f5f;
+    border-radius: 15px;
+    padding: 15px;
+}
+
+#quickActions div, p {
+    padding: 0;
+    text-align: center;
+    align-items: center;
+}
+
+#quickActions div {
+    background-color: transparent;
+}
+
+#quickActions button, #sortedScoresModal button {
+    background-color: #171717;
+    color: white;
+    border: none;
+    font-size: 30px;
+    padding: 18px;
+    border-radius: 9px;
+    width: 150px;
+    margin: 6px;
+}
+
+#quickActions p {
+    margin-right: 90px;
+}
+
+#collapseButton {
+    width: 100% !important;
+    height: 75px;
+}
+
+#expand-container {
+    overflow: hidden;
+}
+
+#top-section {
+    padding-right: 12px !important;
+}
+
+#expand-contract {
+    margin-top: -100%;
+    transition: all .7s;
+}
+
+#expand-contract.expanded {
+    margin-top: 0;
+}
+
+#arrow.collapsed {
+    transform: rotate(180deg);
+}
+
+#arrow {
+    transition: all .5s;
+}
+
+#sortedScoresModal {
+    opacity: 1 !important;
+    z-index: 2000;
+    padding: 90px 150px 60px 150px;
+    background-color: #383838;
+    border-radius: 30px;
+    
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    text-align: center;
+    box-shadow: 0px 0px 45px #000000;
+}
+
+#modalBackdrop {
+    z-index: 1500;
+    position: absolute;
+    width: 10000px;
+    height: 10000px;
+    background: black;
+    opacity: 0.7;
+}
+
+#CloseModal {
+    margin: auto;
+    width: auto !important;
+    height: auto !important;
+    font-size: 30px !important;
+    padding: 30px 60px !important;
+    border-radius: 15px !important;
+}
+
+#SortInputs {
+    margin-bottom: 60px;
+}
+
+#SortInputs input {
+    pointer-events: none;
+}
+
+#sortedScoresModal button:hover {
+    background-color: #4f4f4f !important;
+}
+
+.sortedPlayerName {
+    text-align: right;
+}
+
+.sortedScoreInput {
+    text-align: left;
+
+}
+
+.sortedPlayerName, .sortedScoreInput { 
+    background-color: #4f4f4f;
+    border: none;
+    color: white;
+    margin: 15px 9px 15px 9px;
+    padding: 15px;
+    max-width: 300px;
+    border-radius: 15px;
+}
+
+/* Custom Color picker CSS */
+
+.jscolor-btn-close:hover {
+    background-color: #da3737 !important;
+}
+
+body > .jscolor-wrap {
+    width: auto !important;
+    height: auto !important;
+}
+
+.jscolor-border {
+    padding: 20px !important;
+}
+
+.jscolor-palette-sw {
+    margin: 20px !important;
+}
+
+.jscolor-btn {
+    left: 5px !important;
+    border-radius: 15px !important;
+}
+
+.jscolor-btn div {
+    margin: 28px !important;
+}
+
+.jscolor-picker > div:first-child {
+    left: 30px !important;
+}
+
+.jscolor-picker > div:nth-of-type(3) {
+    left: 220px !important;
+}
+
+.jscolor-picker > div:nth-of-type(4) {
+    left: 220px !important;
+}
+
+
+
+/*** ANIMATION ***/
+
+*[animation="addPlayer"] {
+    animation: addPlayer .2s ease 0s 1 normal none;
+}
+@keyframes addPlayer {
+	0% {
+		opacity: 1;
+		transform: translateX(-50px);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+*[animation="addRow"] {
+    animation: addRow .2s ease 0s 1 normal none;
+}
+@keyframes addRow {
+	0% {
+		opacity: 1;
+		transform: translateY(-50px);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

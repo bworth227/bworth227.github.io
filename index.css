@@ -1,0 +1,490 @@
+html {
+    font-family: Barlow;
+    margin: 0;
+    padding: 0;
+}
+
+.footer a {
+    width: 10px;
+    height: 10px;
+    color: #1c1c1c;
+}
+
+body{
+    background-color: #0c0c0c;
+    margin: 0;
+    padding: 0;
+}
+
+@font-face {
+   font-family: K2D-ExtraBold;
+   src: url(K2D-ExtraBold.ttf);
+}
+
+
+
+
+/*Top Navigation Bar*/
+
+.topbar {
+    background-color: #1d1d1d;
+    overflow: hidden;
+    position: relative;
+    z-index: 3;
+    direction: rtl;
+}
+
+
+.maintitle {
+    float: left !important;
+    font-size: 88px !important; 
+    padding: 0px 70px !important;
+}
+
+.topbar a {
+    display: inline;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    padding: 45px 50px;
+    font-size: 15px;
+    text-decoration: none;
+    line-height: 90px;
+    margin-right: -4px;
+}
+
+
+.topbar a:hover {
+    background-color: #657D8C;
+    color: white;
+}
+
+.topbar a.active {
+    background-color: #657D8C;
+    color: white;
+}
+
+/* Hide the link that should open and close the topnav on small screens */
+.topbar .icon {
+    display: none;
+}
+
+/* When the screen is less than 600 pixels wide, hide all links, except for the first one ("Home"). Show the link that contains should open and close the topnav (.icon) */
+@media screen and (max-width: 1200px) {
+    .topbar b.leftpad {display: none;}
+    .topbar b.rightpad {display: none !important;}
+}
+
+@media screen and (max-width: 800px) {
+    .topbar a:not(.maintitle) {display: none;}
+    .topbar a.icon {
+        float: right;
+        display: block;
+    }
+    
+    .topbar a:not(.maintitle) {
+        padding: 0;
+        text-align: center !important;
+    }
+    
+    .maintitle {
+    padding: 0px 10px !important;
+    }
+    
+    .icon {
+        font-size: 30px !important;
+        padding: 5px 50px !important;
+        
+    }
+}
+
+/* The "responsive" class is added to the topnav with JavaScript when the user clicks on the icon. This class makes the topnav look good on small screens (display the links vertically instead of horizontally) */
+@media screen and (max-width: 800px) {
+  .topbar.responsive {position: relative;}
+  .topbar.responsive a.icon {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+    
+  .topbar.responsive a {
+    float: none !important;
+    display: block;
+    text-align: left;
+  }
+}
+
+
+
+/*Main Content Formatting*/
+
+main {
+    color: white;
+}
+
+
+h1 {
+    font-family: K2D-ExtraBold;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 50px 10px; 
+    color: #657D8C;
+}
+
+h2 {
+    font-family: K2D-ExtraBold;
+    text-align: center;
+    vertical-align: middle; 
+    color: white;
+}
+
+blockquote {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.pagelinks {
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+footer {
+    position: fixed;
+    text-align: center;
+    bottom: 10px;
+    width: 100%;
+    color: darkgray;
+}
+
+footer b.footpad {
+    padding: 20px 30px
+}
+
+
+/*Image Boxes*/
+
+#imageBoxes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+#imageBoxes a {
+    text-decoration: none;
+}
+
+.imagebox {  
+    /*width: 33.333%;*/
+    height: 300px;
+    box-shadow: inset 1px 1px 40px 0 rgba(0,0,0,.45);
+    border-bottom: 0px solid #fff;
+    border-right: 0px solid #fff;
+    /*margin: 4% auto 0 auto;*/
+    background-size: contain !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: auto 100% !important;
+    /*border-radius: 20px;*/
+    overflow: hidden;
+}
+
+@media screen and (max-width: 1200px) {
+    #imageBoxes {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 630px) {
+    #imageBoxes {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    
+    .overlay {  
+    opacity: 1 !important;
+    margin-top: 205px;
+    padding: 30px 0px !important;
+
+    }
+    
+    footer {
+        font-size: 10px;
+    }
+    
+}
+
+.overlay {  
+    /*background: rgba(0,0,0,.50);*/
+    background: rgba(110, 142, 160, 0.72);
+    text-align: center;
+    padding: 135px 100px;
+    opacity: 0;
+    -webkit-transition: opacity .25s ease;
+}
+
+.link {
+    cursor: pointer;
+}
+
+.imagebox:hover .overlay {
+    opacity:1;
+}
+
+.boxtitle {
+    font-family: Barlow;
+    font-weight: 900;
+    color: rgba(255,255,255,.85);
+    font-size: 30px;
+}
+
+
+
+
+
+
+
+
+/* Selected Work Formatting */
+
+#controls {
+    float: right;
+    position: fixed;
+    top: 105px;
+    right: 0;
+    width: 50px;
+    height: 50px;
+    padding-left: 50px;
+    padding-right: 50px;
+    z-index: 2;
+}
+
+#controls img {
+    width: 50px;
+    height: 50px;
+    padding: 3px;
+}
+#controls img {
+    width: 50px;
+    height: 50px;
+}
+
+#selectedWork {
+    height: inherit;
+    padding-bottom: 300px;
+    animation-duration: 4s;
+}
+
+#description {
+    float: left;
+    position: sticky;
+    top: 0;
+    width: 500px;
+    height: 100%;
+    padding-left: 100px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+}
+
+#media {
+    padding-left: 600px;
+}
+
+.mediaBlock {
+    padding: 50px;
+    width: 80%;
+}
+
+.textBlock {
+    padding: 50px;
+    padding-bottom: 0;
+    width: 80%;
+}
+
+.mediaBlock img {
+    width: 100%;
+}
+
+.mediaBlock iframe {
+    width:1000px;
+    height:563px;
+}
+
+.mediaGrid2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 80%;
+    padding: 50px;
+    padding-bottom: 0;
+    grid-gap: 50px;
+}
+
+.mediaGrid3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 80%;
+    padding: 50px;
+    padding-bottom: 0;
+    grid-gap: 50px;
+}
+
+.mediaGrid2 > *,
+.mediaGrid3 > *{  
+    width: 100%;
+}
+
+
+@media screen and (max-width: 1700px) {
+    .mediaBlock {
+    width: 80%;
+    }
+
+    .mediaBlock iframe {
+    width:700px;
+    height:349px;
+    }
+    
+    .mediaGrid2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        width: 80% !important;
+        padding: 50px;
+        padding-bottom: 0;
+        grid-gap: 50px;
+    }
+
+    .mediaGrid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        width: 80% !important;
+        padding: 50px;
+        padding-bottom: 0;
+        grid-gap: 50px;
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    .mediaBlock {
+    width: 80% ;
+    }
+
+    .mediaBlock iframe {
+    width:700px;
+    height:349px;
+    }
+    
+    #media {
+    padding-left: 0px;
+    padding-top: 200px;
+    position: relative;
+    }
+
+    #description {
+        position: relative;
+        width: 75%
+    }
+    
+    .mediaGrid2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        width: 80% !important;
+        padding: 50px;
+        padding-bottom: 0;
+        grid-gap: 50px;
+    }
+
+    .mediaGrid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        width: 80% !important;
+        padding: 50px;
+        padding-bottom: 0;
+        grid-gap: 50px;
+    }
+
+}
+
+@media screen and (max-width: 630px) {
+    
+    
+    .textBlock {
+    padding-right: 0;
+    width: 80%;
+    }
+    
+    .mediaBlock {
+        width: 100%;
+        padding-top: 20px;
+        padding-left: 0;
+        padding-right:0;
+    }
+
+    .mediaBlock iframe {
+        width: 380px;
+    }
+    
+    #media {
+        padding-left: 0px;
+        padding-top: 0px;
+        position: relative;
+    }
+
+    #description {
+        position: relative;
+        padding-left: 50px;
+        padding-right: 0;
+        width: 80%;
+    }
+    
+    #controls {
+        padding-right: 20px;
+        float: right;
+        position: fixed;
+        bottom: 150px;
+        top: auto;
+        right: 0;
+        width: 50px;
+        height: 50px;
+    }
+    
+    .mediaGrid2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        width: 100% !important;
+        padding: 20px;
+        padding-bottom: 0;
+        grid-gap: 20px;
+    }
+
+    .mediaGrid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        width: 100% !important;
+        padding-left: 0;
+        padding-bottom: 0;
+        padding-right: 0;
+        grid-gap: 20px;
+    }
+}
+
+/* Contact Page Formatting */
+
+#contactBox {
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+}
+
+#contactBox a:link {
+    color: cornflowerblue;
+}
+
+#contactBox a:visited {
+    color: #8283bc;
+}
+    
+@media screen and (max-width: 630px) {
+    
+    #contactBox {
+        width: 90%;
+    }
+}
+

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Javascript Battleship Game</title>
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+        </script>
+        
+        <script src="jquery-3.3.1.min.js"></script>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<body>
+        
+    <div id="gameContainer">
+    <div class="title">
+	   <h1>Javascript Battleship</h1>	
+        <p id="designed">(designed by Briton Hainsworth)</p>
+        
+        <br><br>
+        
+        <h5>The game will randomly add 8 ships to the board.
+        <br>
+        Your mission is to find and destroy them <br> with the fewest wasted missles possible.
+        <br><br>
+        Good luck soldier.
+        </h5>
+        
+        <br><br>
+        
+        <h5>Turn up your sound!</h5>
+        
+        <br>
+        
+        <button class="startGame" onclick="createBoard()">Begin</button>
+        
+    </div>   
+    
+    <div id="reveal" style="display: none"> 
+    
+    <div class="text">
+        
+    <div id="buttons">
+        
+    <input type="button" value="Reset Game" onClick="location.reload()" class="scoreBoardButton">
+        
+    <br>
+        
+    <form action="scoreboard.html" class="scoreBoardButton" target="_blank">
+
+    <input type="submit" value="Show Score Board">
+
+    </form>
+        
+    <br>
+        
+        <input type="image" src="playing.png" onClick="togglePlay()" id="playPause" style="height: 30px; width: 30px;">
+        
+    </div>
+        
+    <ul>
+        <li id="LCarrier" value="6">Large Carrier (6 spaces)</li>
+        <li id="Carrier" value="5">Carrier (5 spaces)</li>
+        <li id="BattleshipA" value="4">Battleship (4 spaces)</li>
+        <li id="BattleshipB" value="4">Battleship (4 spaces)</li>
+        <li id="Cruiser" value="3">Cruiser (3 spaces)</li>
+        <li id="Submarine" value="3">Submarine (3 spaces)</li>
+        <li id="DestroyerA" value="2">Destroyer (2 spaces)</li>
+        <li id="DestroyerB" value="2">Destroyer (2 spaces)</li>
+    </ul>
+
+    <div id="misses" value="0">Misses: 0</div>
+    <br>
+
+    <div id="scoreForm" style="display: none">
+        Add your score to <br> the score sheet!<br><br>
+            
+    <form action="action.php" method="POST" enctype="multipart/form-data">
+        
+        <input name="redirect" type="hidden" value="scoreboard.html">
+        
+        <input id="score" type="hidden" name="score" required>
+        
+        
+        Name:<br>
+        <input type="text" name="name" class="input" required><br>
+        <input type="submit" value="Add Score" class="submit">
+        
+    </form>
+    </div>
+        
+        <div id="wonCheck" value="0"></div>
+    </div>
+        
+        
+    <div id="remove">
+	   <div id="gameboard">
+	   </div>
+    </div>
+        
+    <div id="alerts">
+    </div>
+        
+    </div>
+    
+    <audio autoplay controls loop id="piratesTheme">
+    <source src="PiratesTheme.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+    </audio>
+        
+    </div> <!-- id="reveal"-->
+        
+    <style>
+        
+        body {
+            background-color: #212121;
+            color: white;
+            font-family: helvetica, sans-serif;
+            vertical-align: middle;
+            margin: 0;
+            padding: 0;
+        }
+        
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+    @media screen and (min-width: 751px) {    
+        
+        #designed {
+            font-size: 10px;
+        }
+        
+        #gameContainer {
+            width: 720px;
+            margin: 0 auto;
+            padding-left: 15%;
+            padding-top: 20px;
+        }
+        
+        .title {
+            text-align: center;
+            padding-right: 200px;
+            line-height: 10px;
+        }
+        
+        audio {
+            display: none;
+        }
+        
+        #gameboard {
+            padding: 0px;
+            height: 500px;
+            width: 550px;
+            float: center;
+        }
+        
+        #gameboard div {
+            float: left;
+            background: lightgray;
+            border: 1px solid #383838;
+            width: 50px;
+            height: 50px;
+        }
+        
+        #gameboard div:hover {
+            background: white;
+        }
+        
+        div.text {
+            float: right;
+        }
+        
+        #alerts {
+            text-align: center;
+            padding-right: 200px;
+            padding-top: 30px;
+            font-size: 30px;
+        }
+        
+        #buttons {
+            padding-right: 75px;
+            padding-bottom: 40px;
+            width: 100px;
+            float: right;
+        }
+        
+        #misses {
+            padding-top: 20px;
+            font-size: 20px;
+        }
+        
+        h5 {
+            line-height: 30px;
+        }
+        
+        .scoreBoardButton {
+            display: block;
+            margin-right: 45px;
+        }
+        
+        .startGame {
+            padding: 14px 70px;
+            border-radius: 15px;
+            border: none;
+            color: white;
+            background: #383838;
+        }
+        
+        .startGame:hover {
+            background: #484848;
+        }
+        
+    }
+
+@media screen and (max-width: 750px) {
+    
+    #gameContainer{
+        margin: 0 auto;
+    }
+    
+    .title {
+        text-align: center;
+        }
+    
+    .title h5 {
+        line-height: 30px;
+    }
+    
+    audio {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        color: white;
+        text-align: center;
+        border: none;
+    }
+    
+    #gameContainer {
+        width: 100%;
+        margin: 0 auto;
+        }
+    
+    button {
+        color: white;
+        background: #383838;
+        height: 50px;
+        width: 200px;
+        border-radius: 15px;
+        border: none;
+    }
+    
+    #gameboard {
+        margin: 0 auto;
+        padding: 0px;
+        height: 300px;
+        width: 310px;
+    }
+
+    #gameboard div {
+        float: left;
+        background: lightgray;
+        border: .5px solid #383838;
+        width: 30px;
+        height: 30px;
+    }
+    
+    ul {
+        text-align: center;
+        background: #383838;
+        padding: 20px;
+    }
+    
+    #misses {
+        text-align: center;
+    }
+    
+    #alerts {
+        width: 100%;
+        text-align: center;
+        padding-right: 200px;
+        padding-top: 30px;
+    }
+    
+    #buttons {
+        height: 0px;
+        margin: 0 auto;
+        position: element(#gameboard);
+        transform: translate(23%, 650px);
+        left: 23%;
+    }
+    
+    #buttons input, form {
+        color: white;
+        background: #383838;
+        height: 50px;
+        width: 200px;
+        border-radius: 15px;
+        border: none;
+    }
+    
+    #playPause {
+        display: none;
+    }
+    
+    #scoreForm {
+        margin: 0 auto;
+        position: absolute;
+        bottom: -300px;
+        left: 17%;
+        background: #383838;
+        padding: 20px;
+        padding-bottom: 70px;
+        border-radius: 15px;
+        text-align: center;
+    }
+    
+    #scoreForm .submit {
+        background: #212121;
+        color: white;
+        padding: 10px 15px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        border: none;
+        border-radius: 10px;
+    }
+    
+    #scoreForm .input {
+        background: darkgray;
+        color: white;
+        padding: 10px 15px;
+        margin-top: 2px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        border: 1px solid #212121;
+    }
+
+    }
+        
+    </style>
+	
+	<script type="text/javascript" src="FullBattleshipV3.js"></script>
+	</body>
+</html>

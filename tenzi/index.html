@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Tenzi Game</title>
+	</head>
+	<body>
+    <div class="text">
+	   <h1>Tenzi</h1>	
+        <p>(designed by Briton Hainsworth)</p> 
+    </div>   
+    
+    <div class="text">
+        <h5>Instructions:</h5>
+
+        <p>Choose what dice number you want to keep</p>
+        <p>Roll the dice until all dice are that number</p>
+        <p>See how few rolls you can use to get there!</p>
+        
+        <div id="enterNumber">
+            <input type="button" value="Enter Number" onClick="getInput()">
+        </div>
+    </div> 
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+        
+    <input type="button" value="Restart Game" onClick="location.reload();">
+        
+    <br>
+    <br>
+        
+    <div id="rollButton"></div>
+    
+    <br>
+    <br>
+    <div id="targetNumber"></div>
+    <div id="rolls"></div>
+        
+    <br>
+    <div id="remove">
+	   <div id="diceRow">
+	   </div>
+    </div>
+        
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div id="winText"></div>
+        
+    <style>
+        
+        #rollButton div {
+            height: 15px;
+            width: 87px;
+            background: white;
+            border-radius: 3px;
+            color: black;
+            text-align: center;
+            font-size: 12px;
+            user-select: none;
+        }
+        
+        #rollButton div:hover {
+            background: darkgray;
+        }
+        
+        #rollButton div:active {
+            background: #383838;
+        }
+        
+        #diceRow div {
+            float: left;
+            width: 60px;
+            height: 60px;
+            background-size: cover;
+            margin: 4px;
+        }
+        
+        
+        body {
+            background-color: #212121;
+            color: white;
+            font-family: helvetica, sans-serif;
+            padding-left: 50px;
+        }
+        
+        div.text {
+            float: left;
+            padding: 20px;
+        }
+        
+        .d1 {
+            background: url(DiceOne.png);
+        }
+        
+        .d2 {
+            background: url(DiceTwo.png);
+        }
+        .d3 {
+            background: url(DiceThree.png);
+        }
+        .d4 {
+            background: url(DiceFour.png);
+        }
+        .d5 {
+            background: url(DiceFive.png);
+        }
+        .d6 {
+            background: url(DiceSix.png);
+        }
+    </style>
+	
+	<script type="text/javascript" src="Tenzi.js"></script>
+	</body>
+</html>

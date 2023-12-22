@@ -1,0 +1,67 @@
+<html><head>
+		<title>Rounded Tip Calculator</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Barlow">
+        <script src="RoundedTips.js"></script>
+        
+    </head>
+	<body>
+        <div id="inputsContainer">
+            <br>
+            <div class="text">Enter Total:</div>
+            <input id="total" inputmode="decimal" pattern="[0-9]*(\.[0-9]*)?" type="text" oninput="calculateTips();">
+            <div class="text">Custom Percentage:</div>
+            <input id="custom" inputmode="numeric" pattern="[0-9]*(\.[0-9]*)?" type="number" value="10" oninput="calculateTips();">
+            <!--<input id="submit" type="button" value="Calculate">-->
+        </div>
+        <div id="outputContainer">
+        </div>
+    </body>
+          
+    <style>
+        .text {
+            margin-left: 30px;
+        }
+        #inputsContainer {
+            width:100%;
+        }
+        input {
+            width: 95%;
+            height: 100px;
+            background: black;
+            padding: 10px;
+            margin: 30px;
+            border-radius: 30px;
+            color: white;
+            font-size: 40pt;
+        }
+        .object {
+            background: black;
+            padding: 50px;
+            margin: 30px;
+            border-radius: 30px;
+        }
+        #outputContainer {
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%
+        }
+        body {
+            border: 0;
+            font-family: Barlow, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+            background-color: #3e3e3e;
+            height: 100%;
+            font-size: 40pt;
+        }
+
+        @media screen and (max-width: 750px) {
+            body {
+                zoom: 150%;
+            }
+        }
+    </style>
+          
+	
+</body></html>

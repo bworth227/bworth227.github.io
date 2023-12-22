@@ -1,0 +1,70 @@
+<html>
+    <head>
+        <title>Ultimate Game Sheet!</title>
+        <link rel="icon" href="images/favicon.ico">
+        <!--<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Barlow">-->
+        <script src="jscolor-modx3.js"></script>
+        <script src="index.js"></script>
+        <link rel="stylesheet" href="index.css">
+
+        <script>
+            // These options apply to all color pickers on the page
+            jscolor.presets.default = {
+                previewSize:0,
+                backgroundColor:'rgba(55,55,55,1)', borderColor:'rgba(0,0,0,1)', 
+                width:150, height:150, controlBorderColor:'rgba(0,0,0,0)', 
+                shadowColor:'rgba(0,0,0,0.51)',
+                paletteCols:4,
+                palette: [
+                    '#9C0000', '#BD3939', '#DC7633', '#BA4A00',
+                    '#1ABC9C', '#00CF48', '#D6D904', '#B7950B',
+                    '#0E590E', '#0d69bf', '#1A3DB0', '#AF7AC5',
+                    '#171717', '#5D6D7E', '#FF0099', '#6C3483'
+                ],
+                mode: 'HVS',
+                format:'hex',
+                closeButton:true,
+                closeText:'Delete Player',
+                buttonColor:'#ffffff', 
+	            buttonHeight:90,
+                hideOnPaletteClick:true
+            };
+        </script>
+    </head>
+	<body onload="createTable()">
+        <div id="deletePlayer" onclick="deletePlayer();">⊗</div>
+        <div id="modalBackdrop" style="display: none;" onclick="hideSortedScoresModal()"></div>
+        <div id="sortedScoresModal" style="display: none;">
+        </div>
+        <div id="tableContainer">
+            <div id="innerTableContainer">
+                <table id="mainTable">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+                <div id="addColBar" onclick="addPlayer()"><h1 id="plus">+</h1></div>
+            </div>
+        </div>
+        
+        <div id="quickActions">
+            <div id="top-section">
+                <button id="collapseButton" onclick="expandContract()"><img src="images/arrow.png" id="arrow" height="45px" class="expanded"/></button>
+            </div>
+            <div id="expand-container">
+                <div id="expand-contract" class="expanded">
+                    <div>
+                        <!--<p>Sort</p>-->
+                        <button id="SortLowHigh" onclick="sortScores('LowHigh')"><img src="images/sort_low_high.png" height="90px"/></button>
+                        <button id="SortHighLow" onclick="sortScores('HighLow')"><img src="images/sort_high_low.png" height="90px"/></button>
+                    </div>
+                    <div>
+                        <button id="ClearScores" onclick="clearSheet();">Clear Scores</button>
+                        <button id="ResetSheet" onclick="resetSheetToDefault()">Reset Sheet</button>
+                    </div>
+                </div>
+            </div>
+            <div id="bottom-section">
+            </div>
+          </div>
+    </body>
+</html>

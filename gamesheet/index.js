@@ -314,8 +314,7 @@ function addOnblurForSettings(node) {
 function updateLastRowDelete() {
     var lastTd = document.getElementById("mainTable").getElementsByTagName("tbody")[0].lastChild.previousSibling.firstChild;
     if (lastTd.innerText != "1") {
-        //lastTd.innerHTML = "&#9003; " + lastTd.innerText.replace(/[^\d]/g,""); //"&#9003;" is the "⌫" character
-        lastTd.innerHTML = `<div style="position: relative;left: 0;margin: 0 auto -20 auto;text-align: center;padding-top: 9px;padding-bottom: -10;height: 70px;width: 90px;">${lastTd.innerText}<img src="images/delete.png" style="position: absolute;top: -5;left: -5;width: 100%;height: 100%;font-size: 70px;"></div>`
+        lastTd.innerHTML = `<div style="position: relative;left: 0;margin: 0 auto -40 auto;text-align: center;padding-top: 13px;height: 70px;width: 90px;font-size: 25px">${lastTd.innerText}<img src="images/trash.svg" style="position: absolute; top: -13; left: 9; width: 80%; height: 80%;"></div>`
         lastTd.setAttribute("onclick", "confirmDeleteRow();");
         lastTd.className = "last_base_td";
     }

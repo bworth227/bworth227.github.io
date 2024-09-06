@@ -10,28 +10,10 @@ body {
     padding: 0;
     color: white;
     background-color: #3e3e3e !important;
-    position: absolute;
-    height: 100vh;
     width: 100vw;
-    /*zoom: 1.5;
-    -moz-transform: scale(2); 
-    -moz-transform-origin: 0 0;
-    transform: scale(1.5);
-    transform-origin: 0 0;
-    max-width: 500px;*/
+    height: 100vh;
+    position: relative;
 }
-/*
-@media screen and (max-width: 1000px) {
-    body {
-        zoom: 3;
-        /*-moz-transform: scale(3); 
-        -moz-transform-origin: 0 0;
-        transform: scale(3);
-        transform-origin: 0 0;
-        max-width: 500px !important;
-    }
-}
-*/
 td {
     color: white;
     padding: 9px;
@@ -217,6 +199,7 @@ tbody tr:last-child td input {
     background:#5f5f5f;
     border-radius: 15px;
     padding: 15px;
+    z-index: 1000;
 }
 
 #quickActions div, p {
@@ -277,9 +260,10 @@ tbody tr:last-child td input {
 #sortedScoresModal {
     opacity: 1 !important;
     z-index: 2000;
-    padding: 60px;
+    padding: 90px 50px 60px 50px;
     background-color: #383838;
     border-radius: 30px;
+    max-height: 80%;
     
     position: fixed;
     left: 50%;
@@ -293,8 +277,10 @@ tbody tr:last-child td input {
 #modalBackdrop {
     z-index: 1500;
     position: fixed;
-    width: 100%;
-    height: 100%;
+    left: 0;
+    top: 0;
+    width: 110vw;
+    height: 100vh;
     background: black;
     opacity: 0.7;
 }
@@ -310,6 +296,8 @@ tbody tr:last-child td input {
 
 #SortInputs {
     margin-bottom: 60px;
+    max-height: 50vh;
+    overflow: auto;
 }
 
 #SortInputs input {

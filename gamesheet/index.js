@@ -18,6 +18,8 @@ if (!sheetSettings) {
 }
 
 function createTable(settings, action) {
+    changeZoom(false);
+
     if (settings) {
         sheetSettings = settings;
     }
@@ -44,6 +46,45 @@ function createTable(settings, action) {
 
     //checkForCustomCSS();
 }
+
+function changeZoom(allowZoom) {
+    removeZoomElement();
+
+    // Create a new meta element
+    var meta = document.createElement('meta');
+
+    // Set the name attribute to "viewport"
+    meta.setAttribute('name', 'viewport');
+
+    // Set the content attribute with the appropriate viewport settings
+    meta.setAttribute('content', `
+        user-scalable=${allowZoom ? '1' : '0'};
+        width=device-width;
+        initial-scale=0.5;
+        maximum-scale=${allowZoom ? '12' : '0.5'};
+        minimum-scale=0
+    `);
+
+    // Add the meta tag to the head of the document
+    document.head.appendChild(meta);
+}
+
+function removeZoomElement() {
+    // Get all meta tags in the document
+    var els = document.getElementsByTagName('meta');
+
+    // Loop through the meta tags in reverse order since we're removing elements
+    for (var i = els.length - 1; i >= 0; i--) {
+        var meta = els[i];
+        
+        // Check if the meta tag is related to the viewport
+        if (meta.getAttribute('name') === 'viewport') {
+            // Remove the meta tag from the DOM
+            meta.parentNode.removeChild(meta);
+        }
+    }
+}
+
 
 function createBaseRows(rows, table) {
     for (let i = 0; i < rows; i++) {
@@ -406,6 +447,7 @@ function sortHighLow( a, b ) {
 }
 
 function createSortedScoresModal(players) {
+    changeZoom(true);
     let modal = document.getElementById("sortedScoresModal");
     modal.innerText = "";
 
@@ -451,6 +493,7 @@ function createSortedScoresModal(players) {
     modal.insertAdjacentHTML( 'beforeend', lowHighHTML );
 
     document.getElementById("modalBackdrop").style = "display: block;";
+    document.getElementById("tableContainer").style = "overflow: hidden;"
 
     if (players.length <= 7) {
         modal.style = "display: block; /*zoom: 1.2;*/"
@@ -466,6 +509,8 @@ function hideSortedScoresModal(players) {
     document.getElementById("modalBackdrop").style = "display: none;";
     document.getElementById("sortedScoresModal").style = "display: none;";
     document.body.style = "overflow: visible; height: auto;";
+    document.getElementById("tableContainer").style = "overflow: visible;"
+    changeZoom(false);
     //remove the content
     let modal = document.getElementById("sortedScoresModal");
     modal.innerText = "";

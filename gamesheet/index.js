@@ -1,10 +1,10 @@
 const defaultSettings = {
     rows: 10,
     players: [
-        { name: "Player 1", color: "#171717", scores: [] },
-        { name: "Player 2", color: "#171717", scores: [] },
-        { name: "Player 3", color: "#171717", scores: [] },
-        { name: "Player 4", color: "#171717", scores: [] }
+        { name: "Player 1", color: '#171717', scores: [] },
+        { name: "Player 2", color: '#171717', scores: [] },
+        { name: "Player 3", color: '#171717', scores: [] },
+        { name: "Player 4", color: '#171717', scores: [] }
     ]
 }
 
@@ -16,6 +16,9 @@ if (!sheetSettings) {
 } else {
     sheetSettings = JSON.parse(sheetSettings);
 }
+
+var darkModeString = localStorage.getItem('darkMode');
+var darkMode = darkModeString === null ? true : darkModeString === 'true';
 
 function createTable(settings, action) {
     changeZoom(false);
@@ -39,6 +42,8 @@ function createTable(settings, action) {
     updateSheetScores();
     calculateScores();
     updateLastRowDelete();
+
+    setDarkMode();
 
     saveSettings();
 
@@ -107,6 +112,8 @@ function createBaseColumns(players, table, rows, action) {
         if (i == 0) {
             th.id = "Base-Corner";
             th.setAttribute("style", "border-top-left-radius: 30px;");
+            th.setAttribute('onclick', 'toggleDarkMode();');
+            toggleDarkModeIcon(th);
         }
         if (i != 0) {
             //create the player name header input rows
@@ -327,7 +334,7 @@ function addOnblurForSettings(node) {
 function updateLastRowDelete() {
     var lastTd = document.getElementById("mainTable").getElementsByTagName("tbody")[0].lastChild.previousSibling.firstChild;
     if (lastTd.innerText != "1") {
-        lastTd.innerHTML = `<div style="position: relative;left: 0;margin: 0 auto -40 auto;text-align: center;padding-top: 13px;height: 70px;width: 90px;font-size: 25px">${lastTd.innerText}<img src="images/trash.svg" style="position: absolute; top: -13; left: 9; width: 80%; height: 80%;"></div>`
+        lastTd.innerHTML = `<div style="position: relative;left: 0;margin: 0 auto -40 auto;text-align: center;padding-top: 13px;height: 70px;width: 90px;font-size: 25px">${lastTd.innerText}<img src="images/trash.svg" id="trashIcon" style="position: absolute; top: -13; left: 9; width: 80%; height: 80%;"></div>`
         lastTd.setAttribute("onclick", "confirmDeleteRow();");
         lastTd.className = "last_base_td";
     }
@@ -361,7 +368,7 @@ function calculateScores() {
 
 function addPlayer() {
     let numPlayers = sheetSettings.players.length;
-    let newPlayer = { name: `Player ${numPlayers + 1}`, color: "#171717", scores: [] };
+    let newPlayer = { name: `Player ${numPlayers + 1}`, color: `${darkMode ? '#171717' : '#c3c3c3'}`, scores: [] };
     sheetSettings.players.push(newPlayer);
     localStorage.setItem("sheetSettings", JSON.stringify(sheetSettings));
     resetToSheetSettings(sheetSettings, "addPlayer");
@@ -559,6 +566,17 @@ function applyPlayerColor(playerElement, color) {
     resetToSheetSettings(sheetSettings);
 }
 
+function fixInputColors() {
+    const inputs = document.querySelectorAll('#tableContainer input');
+    for (let i = 0; i < inputs.length; i++) {
+        const input = inputs[i];
+        const currentColor = getComputedStyle(input).backgroundColor;
+        if (currentColor === 'rgb(23, 23, 23)' || currentColor === 'rgb(195, 195, 195)') {
+            input.style.backgroundColor = `${darkMode ? '#171717' : '#c3c3c3'}`;
+        }
+    }
+}
+
 //todo: fix phone dark mode colors (not yet working)
 function checkForCustomCSS() {
     var currentBGColor = getComputedStyle(document.body)["background-color"];
@@ -593,3 +611,25 @@ function noHoverOnMobile() {
         document.head.appendChild(style);
     }
 }
+
+function toggleDarkMode() {
+    darkMode = !darkMode;
+    localStorage.setItem('darkMode', darkMode);
+    setDarkMode();
+}
+
+function setDarkMode() {
+    fixInputColors();
+    let trashIcon = document.getElementById("trashIcon");
+    let currentStyle = trashIcon.getAttribute("style");
+    trashIcon.setAttribute("style", `${currentStyle} filter: ${!darkMode ? "invert(100%)" : "none"};`);
+    toggleDarkModeIcon(document.getElementById('Base-Corner'));
+    document.body.className = darkMode ? "" : "lightMode";
+}
+
+function toggleDarkModeIcon(element) {
+    let img = element.getElementsByTagName('img')[0];
+    if (!img) img = document.createElement("img");
+    img.src = !darkMode ? "images/moon.svg" : "images/sun.svg";
+    img.id = "darkModeButton";
+    element.appendChild(img);}

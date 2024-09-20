@@ -446,7 +446,6 @@ function sortHighLow( a, b ) {
 }
 
 function createSortedScoresModal(players) {
-    changeZoom(true);
     let modal = document.getElementById("sortedScoresModal");
     modal.innerText = "";
 
@@ -509,7 +508,6 @@ function hideSortedScoresModal(players) {
     document.getElementById("sortedScoresModal").style = "display: none;";
     document.body.style = "overflow: visible; height: auto;";
     document.getElementById("tableContainer").style = "overflow: visible;"
-    changeZoom(false);
     //remove the content
     let modal = document.getElementById("sortedScoresModal");
     modal.innerText = "";

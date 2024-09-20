@@ -114,7 +114,20 @@ function createBaseColumns(players, table, rows, action) {
             input.value = players[i - 1].name;
             input.setAttribute("style", `background-color: ${players[i - 1].color};`);
             input.id = `PlayerInput-${i-1}`
-            input.setAttribute("onClick","this.setSelectionRange(0, this.value.length)");
+            input.setAttribute("onFocus","this.setSelectionRange(0, this.value.length)");
+            input.addEventListener("keydown", function(e) {
+                if (e.keyCode == 13) {
+                    input.blur();
+                    let nextInputId = `PlayerInput-${i}`;
+                    let nextInput = document.getElementById(nextInputId);
+                    if (nextInput) {
+                        nextInput.focus();
+                        nextInput.setSelectionRange(0, nextInput.value.length);
+                    } else {
+                        addPlayer();
+                    }
+                }
+            });
             addOnblurForSettings(input);
 
             input.setAttribute("data-jscolor", `{ value: '${players[i - 1].color}' }`);
@@ -352,7 +365,10 @@ function addPlayer() {
     sheetSettings.players.push(newPlayer);
     localStorage.setItem("sheetSettings", JSON.stringify(sheetSettings));
     resetToSheetSettings(sheetSettings, "addPlayer");
-    document.getElementById("addColBar").scrollIntoView({ inline: 'start',  behavior: 'smooth' });
+    window.scrollTo({left: document.body.scrollWidth, behavior: 'smooth'});
+    let inputElement = document.getElementById(`PlayerInput-${numPlayers}`);
+    inputElement.focus();
+    inputElement.setSelectionRange(0, inputElement.value.length);
 }
 
 function addRow() {

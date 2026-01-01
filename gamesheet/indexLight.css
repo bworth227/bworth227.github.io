@@ -67,6 +67,10 @@ body.lightMode  {
     color: #666;
 }
 
+.lightMode #quickActions #gameNameInput:hover {
+    background-color: #dadada;
+}
+
 .lightMode .game-name-input:focus {
     background-color: #a09f9f;
 }

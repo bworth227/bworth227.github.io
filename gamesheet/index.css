@@ -290,7 +290,7 @@ tbody tr:last-child td input {
 }
 
 #expand-contract {
-    margin-top: -100%;
+    margin-top: -130%;
     transition: all .7s;
 }
 
@@ -681,13 +681,21 @@ body > .jscolor-wrap {
 }
 
 #quickActions .gameHistoryButton {
-    width: calc(100% - 12px);
+    width: 320px;
     background-color: #0a2836;
     padding-bottom: 16px;
 }
 
 #quickActions #gameNameInput {
-    width: calc(100% - 12px);
+    border: #a5a5a5 solid 3px;
+    background-color: transparent;
+    text-align: left;
+    width: 320px;
+}
+
+#quickActions #gameNameInput:hover {
+    filter: brightness(100%);
+    background-color: #272727;
 }
 
 /*** GAME HISTORY MODAL STYLES ***/

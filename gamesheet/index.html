@@ -66,8 +66,8 @@
                 
                 <!-- Email/Password Auth (shown by default) -->
                 <div id="emailAuthForm">
-                    <input type="email" id="emailInput" placeholder="Email" autocomplete="email" class="auth-input">
-                    <input type="password" id="passwordInput" placeholder="Password (min 6 characters)" autocomplete="current-password" class="auth-input">
+                    <input type="email" id="emailInput" placeholder="Email" autocomplete="email" class="auth-input" onkeydown="if(event.key === 'Enter') { signInWithEmail(); }">
+                    <input type="password" id="passwordInput" placeholder="Password (min 6 characters)" autocomplete="current-password" class="auth-input" onkeydown="if(event.key === 'Enter') { signInWithEmail(); }">
                     <button type="button" onclick="signInWithEmail()" class="auth-button">Sign In</button>
                     <button type="button" onclick="signUpWithEmail()" class="auth-button">Create Account</button>
                     <div class="auth-divider">or</div>
@@ -83,8 +83,12 @@
         <div id="gameHistoryModal">
             <div id="gameHistoryModalContent">
                 <div class="game-history-header">
-                    <h2>Game History</h2>
+                    <div>
+                        <h2>Game History</h2>
+                        <div id="gameHistoryUserEmail" class="game-history-user-email"></div>
+                    </div>
                     <div class="game-history-header-buttons">
+                        <button onclick="saveCurrentGameToHistory()" class="game-history-save-button">Save Current Game</button>
                         <button onclick="signOutUser()" class="game-history-signout-button">Sign Out</button>
                         <button onclick="document.getElementById('gameHistoryModal').style.display = 'none'" class="game-history-close-button">Close</button>
                     </div>

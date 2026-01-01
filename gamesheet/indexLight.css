@@ -161,6 +161,19 @@ body.lightMode  {
     color: black;
 }
 
+.lightMode .game-history-user-email {
+    color: #666;
+}
+
+.lightMode .game-history-save-button {
+    background: #00CF48;
+    color: white;
+}
+
+.lightMode .game-history-save-button:hover {
+    background: #00b03d;
+}
+
 .lightMode .game-history-signout-button {
     background: #da3737;
     color: white;

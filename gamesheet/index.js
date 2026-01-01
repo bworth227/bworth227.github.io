@@ -486,23 +486,23 @@ function saveSettings() {
     localStorage.setItem("sheetSettings", JSON.stringify(set));
 }
 
-function resetSheetToDefault() {
+async function resetSheetToDefault() {
     const isSignedIn = window.currentUser !== null;
     if (confirm(`Are you sure you want to reset the sheet? ${isSignedIn ? 'Your current game will be saved to history.' : ''}`)) {
         // Save current game to history before resetting
         // First, save current settings to ensure we have the latest data
         saveSettings();
 
-        if (window.saveGameHistory) {
-            window.saveGameHistory().then(saved => {
+        // Wait for save to complete before resetting
+        if (window.saveGameHistory && isSignedIn) {
+            try {
+                const saved = await window.saveGameHistory();
                 if (!saved) {
                     console.log('Game was not saved to history');
                 }
-            }).catch(err => {
+            } catch (err) {
                 console.error('Error in saveGameHistory promise:', err);
-            });
-        } else {
-            console.log('saveGameHistory function not available');
+            }
         }
 
         sheetSettings = JSON.parse(JSON.stringify(defaultSettings)); //this is super weird, but if I don't stringify and parse, the defaultSettings const somehow changes

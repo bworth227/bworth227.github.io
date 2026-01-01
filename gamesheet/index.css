@@ -464,6 +464,13 @@ body > .jscolor-wrap {
     border-radius: 9px;
 }
 
+.game-history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
 .game-history-top-row {
     display: flex;
     justify-content: space-between;
@@ -542,6 +549,51 @@ body > .jscolor-wrap {
     text-align: center;
     max-width: 400px;
     width: 90%;
+}
+
+@media (max-width: 768px) {
+    .auth-modal-content {
+        padding: 50px 30px !important;
+        max-width: 95% !important;
+        width: 95% !important;
+        margin: 10px !important;
+    }
+    
+    .auth-modal-content h2 {
+        font-size: 36px !important;
+        margin-bottom: 30px !important;
+    }
+    
+    .auth-input {
+        padding: 20px !important;
+        font-size: 24px !important;
+        margin: 15px 0 !important;
+        min-height: 60px !important;
+    }
+    
+    .auth-button {
+        padding: 22px !important;
+        font-size: 24px !important;
+        margin: 15px 0 !important;
+        min-height: 65px !important;
+    }
+    
+    .auth-skip-button {
+        padding: 20px !important;
+        font-size: 22px !important;
+        min-height: 60px !important;
+        margin-top: 25px !important;
+    }
+    
+    .auth-divider {
+        font-size: 20px !important;
+        margin: 25px 0 !important;
+    }
+    
+    #authStatus {
+        font-size: 20px !important;
+        margin-top: 25px !important;
+    }
 }
 
 .auth-modal-content h2 {
@@ -636,9 +688,99 @@ body > .jscolor-wrap {
     max-width: 600px;
     width: 90%;
     margin: 20px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
     background: #383838;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    #gameHistoryModalContent {
+        padding: 40px 25px !important;
+        max-width: 95% !important;
+        width: 95% !important;
+        margin: 10px !important;
+        max-height: 80vh !important;
+    }
+    
+    .game-history-header {
+        position: relative !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 20px !important;
+    }
+    
+    .game-history-header h2 {
+        font-size: 36px !important;
+        margin-bottom: 15px !important;
+        padding-right: 80px !important;
+    }
+    
+    .game-history-user-email {
+        font-size: 20px !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .game-history-header-buttons {
+        gap: 12px !important;
+        width: 100% !important;
+        flex-wrap: wrap !important;
+        margin-top: 15px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .game-history-close-button {
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        padding: 16px 24px !important;
+        font-size: 22px !important;
+        min-height: 58px !important;
+        flex: none !important;
+        min-width: auto !important;
+    }
+    
+    .game-history-save-button,
+    .game-history-signout-button {
+        padding: 16px 24px !important;
+        font-size: 22px !important;
+        min-height: 58px !important;
+        flex: 1 1 auto !important;
+        min-width: calc(50% - 6px) !important;
+    }
+    
+    .game-history-card {
+        padding: 15px 25px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .game-history-date {
+        font-size: 20px !important;
+    }
+    
+    .game-history-btn-restore,
+    .game-history-btn-delete {
+        padding: 14px 22px !important;
+        font-size: 20px !important;
+        min-height: 54px !important;
+    }
+    
+    .game-history-player {
+        font-size: 20px !important;
+        margin: 10px 0 !important;
+    }
+    
+    .game-history-buttons {
+        gap: 12px !important;
+    }
+}
+
+.game-history-user-email {
+    color: #aaa;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 15px;
 }
 
 .game-history-header {
@@ -646,6 +788,7 @@ body > .jscolor-wrap {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    flex-shrink: 0;
 }
 
 .game-history-header h2 {
@@ -656,6 +799,20 @@ body > .jscolor-wrap {
 .game-history-header-buttons {
     display: flex;
     gap: 8px;
+}
+
+.game-history-save-button {
+    padding: 8px 15px;
+    background: #00CF48;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.game-history-save-button:hover {
+    background: #00b03d;
 }
 
 .game-history-signout-button {
@@ -688,6 +845,9 @@ body > .jscolor-wrap {
 
 #gameHistoryList {
     color: white;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 8px;

@@ -24,6 +24,8 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 let currentUser = null;
+// Make currentUser accessible globally for index.js
+window.currentUser = null;
 
 // Show sign in modal
 function showSignInModal() {
@@ -63,35 +65,67 @@ function hideQuotaWarning() {
     }
 }
 
+// Track if this is the initial auth state check (to avoid opening modal on page load)
+let isInitialAuthCheck = true;
+
 // Initialize auth state listener
-// This is the PRIMARY way to detect sign-in (including redirects)
 function initAuthListener() {
     if (window.firebaseAuth) {
-        console.log('Initializing auth state listener...');
         onAuthStateChanged(window.firebaseAuth, (user) => {
-            console.log('Auth state changed:', user ? user.email : 'null');
+            const wasSignedIn = currentUser !== null;
             currentUser = user;
+            window.currentUser = user; // Update global reference
+            const isNowSignedIn = user !== null;
+            
             if (user) {
-                console.log('User signed in, updating UI...');
                 const authContainer = document.getElementById('authContainer');
                 const historyButton = document.getElementById('gameHistoryButton');
                 const signInButton = document.getElementById('signInButton');
                 if (authContainer) authContainer.style.display = 'none';
                 if (historyButton) historyButton.style.display = 'block';
                 if (signInButton) signInButton.style.display = 'none';
-                console.log('UI updated - user is signed in');
+                
+                // Update Reset Sheet button text
+                updateResetButtonText();
+                
+                // Only open game history modal if this is a new sign-in (not a page reload)
+                // Check if user just signed in (wasn't signed in before, but is now)
+                if (!wasSignedIn && isNowSignedIn && !isInitialAuthCheck) {
+                    // Use setTimeout to ensure UI is ready
+                    setTimeout(() => {
+                        if (window.showGameHistory) {
+                            window.showGameHistory();
+                        }
+                    }, 100);
+                }
             } else {
-                console.log('User signed out, updating UI...');
                 const historyButton = document.getElementById('gameHistoryButton');
                 const signInButton = document.getElementById('signInButton');
                 if (historyButton) historyButton.style.display = 'none';
                 if (signInButton) signInButton.style.display = 'block';
                 hideQuotaWarning();
+                
+                // Update Reset Sheet button text
+                updateResetButtonText();
             }
+            
+            // Mark that we've completed the initial auth check
+            isInitialAuthCheck = false;
         });
     } else {
-        console.log('Firebase Auth not ready, retrying...');
         setTimeout(initAuthListener, 100);
+    }
+}
+
+// Update Reset Sheet button text based on sign-in status
+function updateResetButtonText() {
+    const resetButton = document.getElementById('ResetSheet');
+    if (resetButton) {
+        if (currentUser) {
+            resetButton.textContent = 'New Game';
+        } else {
+            resetButton.textContent = 'Reset Sheet';
+        }
     }
 }
 
@@ -102,32 +136,22 @@ function setInitialButtonStates() {
     // Start with sign-in button visible, history button hidden
     if (historyButton) historyButton.style.display = 'none';
     if (signInButton) signInButton.style.display = 'block';
+    // Set initial button text
+    updateResetButtonText();
 }
 
 // Start listening when DOM is ready
-// IMPORTANT: According to Firebase docs, getRedirectResult should be called BEFORE onAuthStateChanged
-// to ensure the redirect result is processed correctly
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', async function() {
         setInitialButtonStates();
-        // Handle redirect result FIRST (before auth listener)
         await handleRedirectResult();
-        // Then initialize auth listener
         initAuthListener();
     });
 } else {
     setInitialButtonStates();
-    // Handle redirect result FIRST (before auth listener)
     handleRedirectResult().then(() => {
-        // Then initialize auth listener
         initAuthListener();
     });
-}
-
-// Detect if we're on a mobile device
-function isMobileDevice() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-           (window.innerWidth <= 768 && 'ontouchstart' in window);
 }
 
 // Detect if we're on a local/private IP (redirect won't work, use popup instead)
@@ -173,12 +197,12 @@ async function signInWithGoogle() {
     
     try {
         const provider = new GoogleAuthProvider();
-        const isMobile = isMobileDevice();
         const isLocal = isLocalIP();
         
-        // Use popup for local IPs (redirect won't work) or desktop, redirect for mobile on public domains
-        if (isLocal || !isMobile) {
-            // Local IP or desktop: use popup flow
+        // Try popup for both desktop and mobile (it works on desktop, let's try it on mobile too)
+        // Only use redirect if popup fails or is blocked
+        if (isLocal) {
+            // Local IP: always use popup (redirect won't work)
             authStatus.textContent = 'Opening sign-in window...';
             authStatus.style.color = '#ffffff';
             await signInWithPopup(window.firebaseAuth, provider);
@@ -189,10 +213,28 @@ async function signInWithGoogle() {
                 googleButton.textContent = 'Sign in with Google';
             }
         } else {
-            // Mobile on public domain: use redirect flow
-            authStatus.textContent = 'Redirecting to Google sign-in...';
-            authStatus.style.color = '#ffffff';
-            await signInWithRedirect(window.firebaseAuth, provider);
+            // Public domain: try popup first (works on desktop, might work on mobile too)
+            try {
+                authStatus.textContent = 'Opening sign-in window...';
+                authStatus.style.color = '#ffffff';
+                await signInWithPopup(window.firebaseAuth, provider);
+                authStatus.textContent = 'Signed in successfully!';
+                authStatus.style.color = '#00CF48';
+                if (googleButton) {
+                    googleButton.disabled = false;
+                    googleButton.textContent = 'Sign in with Google';
+                }
+            } catch (popupError) {
+                // If popup fails (blocked or not supported), fall back to redirect
+                if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
+                    authStatus.textContent = 'Redirecting to Google sign-in...';
+                    authStatus.style.color = '#ffffff';
+                    await signInWithRedirect(window.firebaseAuth, provider);
+                } else {
+                    // Re-throw other errors
+                    throw popupError;
+                }
+            }
         }
     } catch (error) {
         let errorMessage = 'Error: ' + error.message;
@@ -218,54 +260,33 @@ async function signInWithGoogle() {
     }
 }
 
-// Handle redirect result when page loads (secondary check - auth listener is primary)
-// This is called as a fallback, but onAuthStateChanged should handle redirects automatically
+// Handle redirect result when page loads (fallback for when popup falls back to redirect)
 async function handleRedirectResult() {
-    console.log('handleRedirectResult called');
-    console.log('Current URL:', window.location.href);
-    console.log('URL hash:', window.location.hash);
-    console.log('URL search:', window.location.search);
-    
     // Wait for Firebase Auth to be ready
     let retries = 0;
-    const maxRetries = 30; // Increased retries for mobile
+    const maxRetries = 20;
     while (!window.firebaseAuth && retries < maxRetries) {
         await new Promise(resolve => setTimeout(resolve, 100));
         retries++;
     }
     
     if (!window.firebaseAuth) {
-        console.error('Firebase Auth not ready after waiting');
         return;
     }
     
-    // On mobile, give Firebase a bit more time to process the redirect
-    // Check if we're returning from a redirect (has hash or search params)
-    const hasRedirectParams = window.location.hash || window.location.search;
-    if (hasRedirectParams) {
-        console.log('Redirect params detected, waiting 300ms for Firebase to process...');
-        await new Promise(resolve => setTimeout(resolve, 300));
-    }
-    
     try {
-        console.log('Calling getRedirectResult...');
-        // Try to get redirect result (may return null if already processed by auth listener)
         const result = await getRedirectResult(window.firebaseAuth);
-        console.log('getRedirectResult returned:', result ? 'result found' : 'null');
         
         if (result && result.user) {
-            console.log('Redirect result found, user:', result.user.email);
-            // Update currentUser variable
             currentUser = result.user;
-            
-            // Redirect result found - update status message and UI
+            window.currentUser = result.user; // Update global reference
             const authStatus = document.getElementById('authStatus');
             if (authStatus) {
                 authStatus.textContent = 'Signed in successfully!';
                 authStatus.style.color = '#00CF48';
             }
             
-            // Manually update UI immediately
+            // Update UI immediately
             const authContainer = document.getElementById('authContainer');
             const historyButton = document.getElementById('gameHistoryButton');
             const signInButton = document.getElementById('signInButton');
@@ -273,41 +294,8 @@ async function handleRedirectResult() {
             if (authContainer) authContainer.style.display = 'none';
             if (historyButton) historyButton.style.display = 'block';
             if (signInButton) signInButton.style.display = 'none';
-            
-            console.log('UI updated from redirect result');
-        } else {
-            console.log('No redirect result, checking current user...');
-            let user = window.firebaseAuth.currentUser;
-            console.log('Current user (immediate):', user ? user.email : 'null');
-            
-            // On mobile, the user might not be set immediately after redirect
-            // Wait a bit and check again if we detected redirect params
-            if (hasRedirectParams && !user) {
-                console.log('Redirect params detected but no user yet, waiting 500ms and checking again...');
-                await new Promise(resolve => setTimeout(resolve, 500));
-                user = window.firebaseAuth.currentUser;
-                console.log('Current user (after wait):', user ? user.email : 'null');
-            }
-            
-            // If user is signed in but no redirect result, update UI anyway
-            if (user) {
-                console.log('User is signed in, updating UI...');
-                currentUser = user; // Update global currentUser variable
-                const authContainer = document.getElementById('authContainer');
-                const historyButton = document.getElementById('gameHistoryButton');
-                const signInButton = document.getElementById('signInButton');
-                
-                if (authContainer) authContainer.style.display = 'none';
-                if (historyButton) historyButton.style.display = 'block';
-                if (signInButton) signInButton.style.display = 'none';
-                console.log('UI updated from currentUser check');
-            } else if (hasRedirectParams) {
-                console.warn('Redirect params detected but user is still null - auth state listener should handle this');
-            }
         }
     } catch (error) {
-        console.error('Error in handleRedirectResult:', error);
-        // Handle redirect errors
         if (error.code === 'auth/unauthorized-domain') {
             const authStatus = document.getElementById('authStatus');
             if (authStatus) {
@@ -411,6 +399,11 @@ async function signUpWithEmail() {
 async function signOutUser() {
     try {
         await signOut(window.firebaseAuth);
+        // Close the game history modal after signing out
+        const modal = document.getElementById('gameHistoryModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
     } catch (error) {
         console.error('Sign out error:', error);
     }
@@ -419,12 +412,13 @@ async function signOutUser() {
 // Save game history to Firestore
 async function saveGameHistory() {
     if (!currentUser) {
-        return;
+        return false;
     }
     
     try {
         const sheetSettings = JSON.parse(localStorage.getItem('sheetSettings') || '{}');
-        const players = JSON.parse(localStorage.getItem('players') || '[]');
+        // Players are stored inside sheetSettings.players, not as a separate key
+        const players = sheetSettings.players || [];
         
         const gameData = {
             userId: currentUser.uid,
@@ -434,11 +428,13 @@ async function saveGameHistory() {
         };
         
         await addDoc(collection(window.firebaseDb, 'gameHistory'), gameData);
+        return true;
     } catch (error) {
         if (isQuotaError(error)) {
             showQuotaWarning();
         }
         console.error('Error saving game history:', error);
+        return false;
     }
 }
 
@@ -476,10 +472,62 @@ async function loadGameHistory() {
     }
 }
 
+// Check if current sheet settings are default (no data entered)
+function isDefaultSheetSettings() {
+    try {
+        const sheetSettings = JSON.parse(localStorage.getItem('sheetSettings') || '{}');
+        
+        // Check if rows is 10 (default)
+        if (sheetSettings.rows !== 10) {
+            return false;
+        }
+        
+        // Check if we have exactly 4 players (default)
+        if (!sheetSettings.players || sheetSettings.players.length !== 4) {
+            return false;
+        }
+        
+        // Check if all player names are default and all scores are empty
+        const defaultPlayerNames = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
+        for (let i = 0; i < 4; i++) {
+            const player = sheetSettings.players[i];
+            if (!player) return false;
+            
+            // Check if player name matches default
+            if (player.name !== defaultPlayerNames[i]) {
+                return false;
+            }
+            
+            // Check if player has any scores with values
+            if (player.scores && player.scores.length > 0) {
+                // Check if any score has a non-empty value
+                const hasNonEmptyScore = player.scores.some(score => {
+                    const val = score.val || score.value || '';
+                    return val.toString().trim() !== '';
+                });
+                if (hasNonEmptyScore) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    } catch (error) {
+        // If we can't parse or check, assume it's not default to be safe
+        return false;
+    }
+}
+
 // Restore a game from history
 async function restoreGame(gameId) {
     if (!currentUser) {
         return;
+    }
+    
+    // Close the modal immediately
+    const modal = document.getElementById('gameHistoryModal');
+    if (modal) {
+        modal.style.display = 'none';
     }
     
     try {
@@ -488,10 +536,12 @@ async function restoreGame(gameId) {
             const gameData = gameDoc.data();
             if (gameData.userId === currentUser.uid) {
                 if (gameData.sheetSettings) {
+                    // Players are stored inside sheetSettings.players
+                    // If we have separate players data (from old saves), merge it into sheetSettings
+                    if (gameData.players && (!gameData.sheetSettings.players || gameData.sheetSettings.players.length === 0)) {
+                        gameData.sheetSettings.players = gameData.players;
+                    }
                     localStorage.setItem('sheetSettings', JSON.stringify(gameData.sheetSettings));
-                }
-                if (gameData.players) {
-                    localStorage.setItem('players', JSON.stringify(gameData.players));
                 }
                 location.reload();
             }
@@ -514,13 +564,45 @@ async function deleteGameFromHistory(gameId) {
     }
 }
 
+// Save current game to history (manual save from modal)
+async function saveCurrentGameToHistory() {
+    if (!currentUser) {
+        alert('You must be signed in to save games.');
+        return;
+    }
+    
+    // First, save current settings to ensure we have the latest data
+    // Check if saveSettings exists (it's in index.js)
+    if (typeof saveSettings === 'function') {
+        saveSettings();
+    } else if (window.saveSettings) {
+        window.saveSettings();
+    }
+    
+    const saved = await saveGameHistory();
+    if (saved) {
+        // Refresh the game history list
+        await showGameHistory();
+    } else {
+        alert('Failed to save game. Please try again.');
+    }
+}
+
 // Show game history modal
 async function showGameHistory() {
     const modal = document.getElementById('gameHistoryModal');
     const list = document.getElementById('gameHistoryList');
+    const userEmailDiv = document.getElementById('gameHistoryUserEmail');
     
     if (!modal || !list) {
         return;
+    }
+    
+    // Update user email display
+    if (userEmailDiv && currentUser && currentUser.email) {
+        userEmailDiv.textContent = `Signed in as: ${currentUser.email}`;
+    } else if (userEmailDiv) {
+        userEmailDiv.textContent = '';
     }
     
     modal.style.display = 'flex';
@@ -529,7 +611,7 @@ async function showGameHistory() {
     const games = await loadGameHistory();
     
     if (games.length === 0) {
-        list.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">No game history found.</div>';
+        list.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">No game history yet. Games will be saved here when you click "New Game".</div>';
         return;
     }
     
@@ -559,7 +641,7 @@ async function showGameHistory() {
         gameCard.className = 'game-history-card';
         
         const header = document.createElement('div');
-        header.className = 'game-history-header';
+        header.className = 'game-history-item-header';
         header.innerHTML = `<div class="game-history-date">${dateTimeText}</div>`;
         
         const buttons = document.createElement('div');
@@ -569,16 +651,21 @@ async function showGameHistory() {
         restoreBtn.className = 'game-history-btn-restore';
         restoreBtn.textContent = 'Restore';
         restoreBtn.onclick = () => {
-            restoreGame(game.id);
-            modal.style.display = 'none';
+            // Only show confirmation if current sheet has data (not default)
+            const isDefault = isDefaultSheetSettings();
+            if (isDefault || confirm('Are you sure you want to restore this game? Your current game will be replaced.')) {
+                restoreGame(game.id);
+            }
         };
         
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'game-history-btn-delete';
         deleteBtn.textContent = 'Delete';
         deleteBtn.onclick = async () => {
-            await deleteGameFromHistory(game.id);
-            showGameHistory();
+            if (confirm('Are you sure you want to delete this game from history? This action cannot be undone.')) {
+                await deleteGameFromHistory(game.id);
+                showGameHistory();
+            }
         };
         
         buttons.appendChild(restoreBtn);
@@ -627,3 +714,6 @@ window.signUpWithEmail = signUpWithEmail;
 window.signOutUser = signOutUser;
 window.showGameHistory = showGameHistory;
 window.closeGameHistory = closeGameHistory;
+window.saveGameHistory = saveGameHistory;
+window.updateResetButtonText = updateResetButtonText;
+window.saveCurrentGameToHistory = saveCurrentGameToHistory;

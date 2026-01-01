@@ -20,7 +20,8 @@ import {
     limit,
     doc,
     getDoc,
-    deleteDoc
+    deleteDoc,
+    updateDoc
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 let currentUser = null;
@@ -420,6 +421,9 @@ async function saveGameHistory() {
         // Players are stored inside sheetSettings.players, not as a separate key
         const players = sheetSettings.players || [];
         
+        // Check if this is an update to an existing game
+        const existingGameId = sheetSettings.gameId;
+        
         const gameData = {
             userId: currentUser.uid,
             timestamp: new Date(),
@@ -427,7 +431,32 @@ async function saveGameHistory() {
             players: players
         };
         
-        await addDoc(collection(window.firebaseDb, 'gameHistory'), gameData);
+        if (existingGameId) {
+            // Update existing game: delete old one and create new one (moves to top)
+            try {
+                await deleteDoc(doc(window.firebaseDb, 'gameHistory', existingGameId));
+            } catch (deleteError) {
+                // If delete fails, continue anyway (game might not exist)
+                console.warn('Could not delete old game entry:', deleteError);
+            }
+        }
+        
+        // Create new entry (or recreate after delete, which moves it to top)
+        const docRef = await addDoc(collection(window.firebaseDb, 'gameHistory'), gameData);
+        
+        // Store the new game ID in settings so future saves will update this game
+        sheetSettings.gameId = docRef.id;
+        localStorage.setItem('sheetSettings', JSON.stringify(sheetSettings));
+        
+        // Store a snapshot of the saved state for comparison
+        const savedStateSnapshot = JSON.stringify({
+            gameId: docRef.id,
+            players: players,
+            rows: sheetSettings.rows,
+            gameName: sheetSettings.gameName || ''
+        });
+        localStorage.setItem('lastSavedGameState', savedStateSnapshot);
+        
         return true;
     } catch (error) {
         if (isQuotaError(error)) {
@@ -455,9 +484,15 @@ async function loadGameHistory() {
         const querySnapshot = await getDocs(q);
         const games = [];
         
+        // Get current game ID from localStorage
+        const currentSheetSettings = JSON.parse(localStorage.getItem('sheetSettings') || '{}');
+        const currentGameId = currentSheetSettings.gameId;
+        
         querySnapshot.forEach((doc) => {
+            const isCurrent = doc.id === currentGameId;
             games.push({
                 id: doc.id,
+                isCurrentGame: isCurrent,
                 ...doc.data()
             });
         });
@@ -469,6 +504,81 @@ async function loadGameHistory() {
         }
         console.error('Error loading game history:', error);
         return [];
+    }
+}
+
+// Check if current game state matches the last saved state
+function isCurrentGameUnchanged() {
+    try {
+        const currentSheetSettings = JSON.parse(localStorage.getItem('sheetSettings') || '{}');
+        const lastSavedState = localStorage.getItem('lastSavedGameState');
+        
+        // If no saved state exists, game has been changed
+        if (!lastSavedState) {
+            return false;
+        }
+        
+        // If no gameId, game hasn't been saved
+        if (!currentSheetSettings.gameId) {
+            return false;
+        }
+        
+        // Parse the saved state
+        const savedState = JSON.parse(lastSavedState);
+        
+        // Check if gameId matches
+        if (savedState.gameId !== currentSheetSettings.gameId) {
+            return false;
+        }
+        
+        // Compare current state with saved state
+        const currentState = {
+            gameId: currentSheetSettings.gameId,
+            players: currentSheetSettings.players || [],
+            rows: currentSheetSettings.rows,
+            gameName: currentSheetSettings.gameName || ''
+        };
+        
+        // Compare players (name, color, and scores)
+        if (currentState.players.length !== savedState.players.length) {
+            return false;
+        }
+        
+        for (let i = 0; i < currentState.players.length; i++) {
+            const currentPlayer = currentState.players[i];
+            const savedPlayer = savedState.players[i];
+            
+            if (currentPlayer.name !== savedPlayer.name ||
+                currentPlayer.color !== savedPlayer.color) {
+                return false;
+            }
+            
+            // Compare scores
+            const currentScores = currentPlayer.scores || [];
+            const savedScores = savedPlayer.scores || [];
+            
+            if (currentScores.length !== savedScores.length) {
+                return false;
+            }
+            
+            for (let j = 0; j < currentScores.length; j++) {
+                if (currentScores[j].val !== savedScores[j].val ||
+                    currentScores[j].color !== savedScores[j].color) {
+                    return false;
+                }
+            }
+        }
+        
+        // Compare rows and gameName
+        if (currentState.rows !== savedState.rows ||
+            currentState.gameName !== savedState.gameName) {
+            return false;
+        }
+        
+        return true;
+    } catch (error) {
+        // If comparison fails, assume game has been changed
+        return false;
     }
 }
 
@@ -518,16 +628,10 @@ function isDefaultSheetSettings() {
     }
 }
 
-// Restore a game from history
-async function restoreGame(gameId) {
+// Open a game from history (applies it and stores gameId for future updates)
+async function openGame(gameId) {
     if (!currentUser) {
         return;
-    }
-    
-    // Close the modal immediately
-    const modal = document.getElementById('gameHistoryModal');
-    if (modal) {
-        modal.style.display = 'none';
     }
     
     try {
@@ -541,13 +645,69 @@ async function restoreGame(gameId) {
                     if (gameData.players && (!gameData.sheetSettings.players || gameData.sheetSettings.players.length === 0)) {
                         gameData.sheetSettings.players = gameData.players;
                     }
+                    // Store the game ID so "Save Current Game" will update this entry
+                    gameData.sheetSettings.gameId = gameId;
                     localStorage.setItem('sheetSettings', JSON.stringify(gameData.sheetSettings));
+                    
+                    // Store a snapshot of the opened state for comparison
+                    const openedStateSnapshot = JSON.stringify({
+                        gameId: gameId,
+                        players: gameData.players || gameData.sheetSettings.players || [],
+                        rows: gameData.sheetSettings.rows,
+                        gameName: gameData.sheetSettings.gameName || ''
+                    });
+                    localStorage.setItem('lastSavedGameState', openedStateSnapshot);
+                    
+                    // Apply the settings to the current page without reloading
+                    if (typeof resetToSheetSettings === 'function') {
+                        resetToSheetSettings(gameData.sheetSettings);
+                    } else if (window.resetToSheetSettings) {
+                        window.resetToSheetSettings(gameData.sheetSettings);
+                    }
+                    
+                    // Update highlighting in the history list without re-querying Firebase
+                    updateGameHistoryHighlighting(gameId);
                 }
-                location.reload();
             }
         }
     } catch (error) {
-        console.error('Error restoring game:', error);
+        console.error('Error opening game:', error);
+    }
+}
+
+// Duplicate a game (creates a new entry with same data but new ID)
+async function duplicateGame(gameId) {
+    if (!currentUser) {
+        return;
+    }
+    
+    try {
+        const gameDoc = await getDoc(doc(window.firebaseDb, 'gameHistory', gameId));
+        if (gameDoc.exists()) {
+            const gameData = gameDoc.data();
+            if (gameData.userId === currentUser.uid) {
+                // Create new game data with current timestamp
+                const newGameData = {
+                    userId: currentUser.uid,
+                    timestamp: new Date(),
+                    sheetSettings: gameData.sheetSettings ? { ...gameData.sheetSettings } : {},
+                    players: gameData.players || []
+                };
+                
+                // Remove gameId from duplicated settings so it's treated as a new game
+                if (newGameData.sheetSettings.gameId) {
+                    delete newGameData.sheetSettings.gameId;
+                }
+                
+                // Add the new game (will appear at top due to timestamp)
+                await addDoc(collection(window.firebaseDb, 'gameHistory'), newGameData);
+                
+                // Refresh the history list
+                await showGameHistory();
+            }
+        }
+    } catch (error) {
+        console.error('Error duplicating game:', error);
     }
 }
 
@@ -608,6 +768,10 @@ async function showGameHistory() {
     modal.style.display = 'flex';
     list.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Loading...</div>';
     
+    // Get current game ID from localStorage (fresh read)
+    const currentSheetSettings = JSON.parse(localStorage.getItem('sheetSettings') || '{}');
+    const currentGameId = currentSheetSettings.gameId;
+    
     const games = await loadGameHistory();
     
     if (games.length === 0) {
@@ -638,37 +802,72 @@ async function showGameHistory() {
         const dateTimeText = `${dateText} • ${timeText}`;
         
         const gameCard = document.createElement('div');
-        gameCard.className = 'game-history-card';
+        // Add class to highlight current game (check again with fresh currentGameId)
+        const isCurrent = game.id === currentGameId;
+        gameCard.className = isCurrent ? 'game-history-card current-game' : 'game-history-card';
+        // Store gameId as data attribute for easy lookup
+        gameCard.setAttribute('data-game-id', game.id);
+        
+        // Make the entire card clickable to open the game
+        const handleCardClick = () => {
+            // Check if current game is default (no data) or unchanged from saved version
+            const isDefault = isDefaultSheetSettings();
+            const isUnchanged = isCurrentGameUnchanged();
+            
+            // Skip confirmation if current game is default (no data) or unchanged from saved version
+            if (isDefault || isUnchanged) {
+                openGame(game.id);
+            } else {
+                // Show confirmation if current game has unsaved changes
+                if (confirm('Are you sure you want to open this game? Your current game will be replaced.')) {
+                    openGame(game.id);
+                }
+            }
+        };
+        gameCard.onclick = handleCardClick;
         
         const header = document.createElement('div');
         header.className = 'game-history-item-header';
-        header.innerHTML = `<div class="game-history-date">${dateTimeText}</div>`;
+        
+        // Get game name from sheetSettings if it exists
+        const gameName = game.sheetSettings && game.sheetSettings.gameName ? game.sheetSettings.gameName : '';
+        const dateHtml = gameName 
+            ? `<div class="game-history-date"><b style="font-size: 25px;">${gameName}</b> • ${dateTimeText}</div>`
+            : `<div class="game-history-date">${dateTimeText}</div>`;
+        header.innerHTML = dateHtml;
         
         const buttons = document.createElement('div');
         buttons.className = 'game-history-buttons';
         
-        const restoreBtn = document.createElement('button');
-        restoreBtn.className = 'game-history-btn-restore';
-        restoreBtn.textContent = 'Restore';
-        restoreBtn.onclick = () => {
-            // Only show confirmation if current sheet has data (not default)
-            const isDefault = isDefaultSheetSettings();
-            if (isDefault || confirm('Are you sure you want to restore this game? Your current game will be replaced.')) {
-                restoreGame(game.id);
-            }
+        const openBtn = document.createElement('button');
+        openBtn.className = 'game-history-btn-open';
+        openBtn.textContent = 'Open';
+        openBtn.onclick = (e) => {
+            e.stopPropagation(); // Prevent card click
+            handleCardClick();
+        };
+        
+        const duplicateBtn = document.createElement('button');
+        duplicateBtn.className = 'game-history-btn-duplicate';
+        duplicateBtn.textContent = 'Duplicate';
+        duplicateBtn.onclick = (e) => {
+            e.stopPropagation(); // Prevent card click
+            duplicateGame(game.id);
         };
         
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'game-history-btn-delete';
         deleteBtn.textContent = 'Delete';
-        deleteBtn.onclick = async () => {
+        deleteBtn.onclick = async (e) => {
+            e.stopPropagation(); // Prevent card click
             if (confirm('Are you sure you want to delete this game from history? This action cannot be undone.')) {
                 await deleteGameFromHistory(game.id);
                 showGameHistory();
             }
         };
         
-        buttons.appendChild(restoreBtn);
+        buttons.appendChild(openBtn);
+        buttons.appendChild(duplicateBtn);
         buttons.appendChild(deleteBtn);
         header.appendChild(buttons);
         
@@ -677,9 +876,21 @@ async function showGameHistory() {
         
         if (game.players && game.players.length > 0) {
             game.players.forEach((player) => {
+                // Calculate total score from scores array
+                let totalScore = 0;
+                if (player.scores && Array.isArray(player.scores)) {
+                    player.scores.forEach((scoreEntry) => {
+                        const scoreValue = parseFloat(scoreEntry.val) || 0;
+                        totalScore += scoreValue;
+                    });
+                } else if (player.score !== undefined) {
+                    // Fallback to score property if it exists (for backwards compatibility)
+                    totalScore = parseFloat(player.score) || 0;
+                }
+                
                 const playerDiv = document.createElement('div');
                 playerDiv.className = 'game-history-player';
-                playerDiv.innerHTML = `<strong>${player.name || 'Unnamed'}:</strong> ${player.score || 0}`;
+                playerDiv.innerHTML = `<strong>${player.name || 'Unnamed'}:</strong> ${totalScore}`;
                 playersList.appendChild(playerDiv);
             });
         }
@@ -688,6 +899,28 @@ async function showGameHistory() {
         gameCard.appendChild(playersList);
         list.appendChild(gameCard);
     });
+}
+
+// Update game history highlighting without re-querying Firebase
+function updateGameHistoryHighlighting(currentGameId) {
+    const list = document.getElementById('gameHistoryList');
+    if (!list) {
+        return;
+    }
+    
+    // Remove current-game class from all cards
+    const allCards = list.querySelectorAll('.game-history-card');
+    allCards.forEach((card) => {
+        card.classList.remove('current-game');
+    });
+    
+    // Add current-game class to the card with matching gameId
+    if (currentGameId) {
+        const currentCard = list.querySelector(`[data-game-id="${currentGameId}"]`);
+        if (currentCard) {
+            currentCard.classList.add('current-game');
+        }
+    }
 }
 
 // Close game history modal

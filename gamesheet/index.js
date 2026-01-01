@@ -98,6 +98,9 @@ function createTable(settings, action) {
     setDarkMode();
 
     saveSettings();
+    
+    // Load game name after table is created
+    loadGameName();
 
     noHoverOnMobile();
 
@@ -481,9 +484,45 @@ function saveSettings() {
         }
     }
     set.players = players;
+    
+    // Save game name if input exists and has a value
+    const gameNameInput = document.getElementById('gameNameInput');
+    if (gameNameInput && gameNameInput.value) {
+        set.gameName = gameNameInput.value;
+    } else if (sheetSettings && sheetSettings.gameName) {
+        // Preserve gameName from existing settings if input is empty (e.g., on page load before loadGameName runs)
+        set.gameName = sheetSettings.gameName;
+    } else {
+        set.gameName = '';
+    }
+    
+    // Preserve gameId from existing settings (important for tracking which game is currently open)
+    if (sheetSettings && sheetSettings.gameId) {
+        set.gameId = sheetSettings.gameId;
+    }
 
     sheetSettings = set;
     localStorage.setItem("sheetSettings", JSON.stringify(set));
+}
+
+// Load game name from settings
+function loadGameName() {
+    const gameNameInput = document.getElementById('gameNameInput');
+    
+    // Re-read from localStorage to get the latest value (in case it was updated)
+    const currentSettings = JSON.parse(localStorage.getItem('sheetSettings') || '{}');
+    
+    if (gameNameInput && currentSettings && currentSettings.gameName) {
+        gameNameInput.value = currentSettings.gameName;
+    } else if (gameNameInput) {
+        // Clear the input if there's no game name
+        gameNameInput.value = '';
+    }
+}
+
+// Update game name in settings
+function updateGameName() {
+    saveSettings();
 }
 
 async function resetSheetToDefault() {
@@ -496,16 +535,15 @@ async function resetSheetToDefault() {
         // Wait for save to complete before resetting
         if (window.saveGameHistory && isSignedIn) {
             try {
-                const saved = await window.saveGameHistory();
-                if (!saved) {
-                    console.log('Game was not saved to history');
-                }
+                await window.saveGameHistory();
             } catch (err) {
                 console.error('Error in saveGameHistory promise:', err);
             }
         }
 
         sheetSettings = JSON.parse(JSON.stringify(defaultSettings)); //this is super weird, but if I don't stringify and parse, the defaultSettings const somehow changes
+        // Clear gameId when resetting so it doesn't try to update an old game
+        delete sheetSettings.gameId;
         localStorage.setItem("sheetSettings", JSON.stringify(sheetSettings));
         document.getElementById("mainTable").getElementsByTagName("thead")[0].textContent = "";
         document.getElementById("mainTable").getElementsByTagName("tbody")[0].textContent = "";
@@ -519,6 +557,9 @@ function resetToSheetSettings(settings, action) {
 
     createTable(settings, action);
 }
+
+// Make resetToSheetSettings available globally for firebase-auth.js
+window.resetToSheetSettings = resetToSheetSettings;
 
 function addOnblurForSettings(node) {
     node.onblur = function (e) {

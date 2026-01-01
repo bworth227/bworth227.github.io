@@ -1,7 +1,9 @@
 // Firebase Authentication and Game History Functions
 
 import { 
-    signInWithPopup, 
+    signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     GoogleAuthProvider, 
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -86,140 +88,292 @@ function initAuthListener() {
     }
 }
 
+// Track if we've already handled redirect result (can only call getRedirectResult once)
+let redirectResultHandled = false;
+
+// Set initial button states (before auth listener fires)
+function setInitialButtonStates() {
+    const historyButton = document.getElementById('gameHistoryButton');
+    const signInButton = document.getElementById('signInButton');
+    // Start with sign-in button visible, history button hidden
+    if (historyButton) historyButton.style.display = 'none';
+    if (signInButton) signInButton.style.display = 'block';
+}
+
 // Start listening when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAuthListener);
+    document.addEventListener('DOMContentLoaded', function() {
+        setInitialButtonStates();
+        initAuthListener();
+        handleRedirectResult();
+    });
 } else {
+    setInitialButtonStates();
     initAuthListener();
+    handleRedirectResult();
+}
+
+// Detect if we're on a mobile device
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (window.innerWidth <= 768 && 'ontouchstart' in window);
 }
 
 // Sign in with Google
 async function signInWithGoogle() {
+    const googleButton = document.getElementById('signInGoogle');
+    if (googleButton) {
+        googleButton.disabled = true;
+        googleButton.textContent = 'Loading...';
+    }
+    
+    const authStatus = document.getElementById('authStatus');
+    
+    if (!window.firebaseAuth) {
+        const errorMsg = 'Firebase Auth not initialized. Please refresh the page.';
+        if (authStatus) {
+            authStatus.textContent = errorMsg;
+            authStatus.style.color = '#da3737';
+        }
+        if (googleButton) {
+            googleButton.disabled = false;
+            googleButton.textContent = 'Sign in with Google';
+        }
+        return;
+    }
+    
+    if (!authStatus) {
+        if (googleButton) {
+            googleButton.disabled = false;
+            googleButton.textContent = 'Sign in with Google';
+        }
+        return;
+    }
+    
     try {
         const provider = new GoogleAuthProvider();
-        await signInWithPopup(window.firebaseAuth, provider);
-        document.getElementById('authStatus').textContent = 'Signed in successfully!';
-    } catch (error) {
-        document.getElementById('authStatus').textContent = 'Error: ' + error.message;
-    }
-}
-
-// Sign in with email
-async function signInWithEmail() {
-    try {
-        const email = document.getElementById('emailInput').value.trim();
-        const password = document.getElementById('passwordInput').value;
+        const isMobile = isMobileDevice();
         
-        if (!email) {
-            document.getElementById('authStatus').textContent = 'Please enter an email address.';
-            return;
+        if (isMobile) {
+            // Mobile: use redirect flow
+            authStatus.textContent = 'Redirecting to Google sign-in...';
+            authStatus.style.color = '#ffffff';
+            await signInWithRedirect(window.firebaseAuth, provider);
+        } else {
+            // Desktop: use popup flow
+            authStatus.textContent = 'Opening sign-in window...';
+            authStatus.style.color = '#ffffff';
+            await signInWithPopup(window.firebaseAuth, provider);
+            authStatus.textContent = 'Signed in successfully!';
+            authStatus.style.color = '#00CF48';
+            if (googleButton) {
+                googleButton.disabled = false;
+                googleButton.textContent = 'Sign in with Google';
+            }
         }
-        if (!password) {
-            document.getElementById('authStatus').textContent = 'Please enter a password.';
-            return;
-        }
-        
-        document.getElementById('authStatus').textContent = 'Signing in...';
-        await signInWithEmailAndPassword(window.firebaseAuth, email, password);
-        document.getElementById('authStatus').textContent = 'Signed in successfully!';
     } catch (error) {
         let errorMessage = 'Error: ' + error.message;
-        if (error.code === 'auth/user-not-found') {
-            errorMessage = 'No account found with this email. Try creating an account instead.';
-        } else if (error.code === 'auth/wrong-password') {
-            errorMessage = 'Incorrect password. Please try again.';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage = 'Please enter a valid email address.';
-        } else if (error.code === 'auth/invalid-credential') {
-            errorMessage = 'Invalid email or password. Please try again.';
+        if (error.code === 'auth/popup-closed-by-user') {
+            errorMessage = 'Sign-in was cancelled.';
+        } else if (error.code === 'auth/popup-blocked') {
+            errorMessage = 'Popup was blocked. Please allow popups for this site.';
+        } else if (error.code === 'auth/unauthorized-domain') {
+            errorMessage = 'Unauthorized domain. Please add this domain to Firebase Console → Authentication → Settings → Authorized domains.';
+        } else if (error.code === 'auth/operation-not-allowed') {
+            errorMessage = 'Google sign-in is not enabled. Please enable it in Firebase Console.';
         }
-        document.getElementById('authStatus').textContent = errorMessage;
+        
+        if (authStatus) {
+            authStatus.textContent = errorMessage;
+            authStatus.style.color = '#da3737';
+        }
+        
+        if (googleButton) {
+            googleButton.disabled = false;
+            googleButton.textContent = 'Sign in with Google';
+        }
     }
 }
 
-// Sign up with email
-async function signUpWithEmail() {
+// Handle redirect result when page loads (for mobile Google sign-in)
+async function handleRedirectResult() {
+    if (redirectResultHandled) {
+        return;
+    }
+    
+    // Wait for Firebase Auth to be ready
+    let retries = 0;
+    const maxRetries = 10;
+    while (!window.firebaseAuth && retries < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 100 * (retries + 1)));
+        retries++;
+    }
+    
+    if (!window.firebaseAuth) {
+        return;
+    }
+    
     try {
-        const email = document.getElementById('emailInput').value.trim();
-        const password = document.getElementById('passwordInput').value;
+        const result = await getRedirectResult(window.firebaseAuth);
+        redirectResultHandled = true;
         
-        if (!email) {
-            document.getElementById('authStatus').textContent = 'Please enter an email address.';
-            return;
+        if (result && result.user) {
+            // User signed in via redirect
+            const authStatus = document.getElementById('authStatus');
+            if (authStatus) {
+                authStatus.textContent = 'Signed in successfully!';
+                authStatus.style.color = '#00CF48';
+            }
+            
+            // Manually update UI (auth state listener should also fire)
+            const authContainer = document.getElementById('authContainer');
+            const historyButton = document.getElementById('gameHistoryButton');
+            const signInButton = document.getElementById('signInButton');
+            
+            if (authContainer) authContainer.style.display = 'none';
+            if (historyButton) historyButton.style.display = 'block';
+            if (signInButton) signInButton.style.display = 'none';
         }
-        if (!password || password.length < 6) {
-            document.getElementById('authStatus').textContent = 'Password must be at least 6 characters.';
-            return;
-        }
-        
-        document.getElementById('authStatus').textContent = 'Creating account...';
-        await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-        document.getElementById('authStatus').textContent = 'Account created! Signed in.';
     } catch (error) {
-        let errorMessage = 'Error: ' + error.message;
-        if (error.code === 'auth/email-already-in-use') {
-            errorMessage = 'This email is already registered. Try signing in instead.';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage = 'Please enter a valid email address.';
-        } else if (error.code === 'auth/weak-password') {
-            errorMessage = 'Password is too weak. Please use at least 6 characters.';
-        }
-        document.getElementById('authStatus').textContent = errorMessage;
-    }
-}
-
-// Calculate player total score
-function calculatePlayerTotal(player) {
-    let total = 0;
-    if (player.scores && Array.isArray(player.scores)) {
-        for (let i = 0; i < player.scores.length; i++) {
-            const val = parseFloat(player.scores[i].val);
-            if (!isNaN(val)) {
-                total += val;
+        // Handle redirect errors silently - auth state listener will handle user state
+        if (error.code === 'auth/unauthorized-domain') {
+            const authStatus = document.getElementById('authStatus');
+            if (authStatus) {
+                authStatus.textContent = 'Unauthorized domain. Please add this domain to Firebase authorized domains.';
+                authStatus.style.color = '#da3737';
             }
         }
     }
-    return total;
+}
+
+// Sign in with email and password
+async function signInWithEmail() {
+    const email = document.getElementById('emailInput').value;
+    const password = document.getElementById('passwordInput').value;
+    const authStatus = document.getElementById('authStatus');
+    
+    if (!email || !password) {
+        if (authStatus) {
+            authStatus.textContent = 'Please enter both email and password.';
+            authStatus.style.color = '#da3737';
+        }
+        return;
+    }
+    
+    if (password.length < 6) {
+        if (authStatus) {
+            authStatus.textContent = 'Password must be at least 6 characters.';
+            authStatus.style.color = '#da3737';
+        }
+        return;
+    }
+    
+    try {
+        await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+        if (authStatus) {
+            authStatus.textContent = 'Signed in successfully!';
+            authStatus.style.color = '#00CF48';
+        }
+    } catch (error) {
+        let errorMessage = 'Error: ' + error.message;
+        if (error.code === 'auth/user-not-found') {
+            errorMessage = 'No account found with this email.';
+        } else if (error.code === 'auth/wrong-password') {
+            errorMessage = 'Incorrect password.';
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = 'Invalid email address.';
+        }
+        
+        if (authStatus) {
+            authStatus.textContent = errorMessage;
+            authStatus.style.color = '#da3737';
+        }
+    }
+}
+
+// Create account with email and password
+async function signUpWithEmail() {
+    const email = document.getElementById('emailInput').value;
+    const password = document.getElementById('passwordInput').value;
+    const authStatus = document.getElementById('authStatus');
+    
+    if (!email || !password) {
+        if (authStatus) {
+            authStatus.textContent = 'Please enter both email and password.';
+            authStatus.style.color = '#da3737';
+        }
+        return;
+    }
+    
+    if (password.length < 6) {
+        if (authStatus) {
+            authStatus.textContent = 'Password must be at least 6 characters.';
+            authStatus.style.color = '#da3737';
+        }
+        return;
+    }
+    
+    try {
+        await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+        if (authStatus) {
+            authStatus.textContent = 'Account created successfully!';
+            authStatus.style.color = '#00CF48';
+        }
+    } catch (error) {
+        let errorMessage = 'Error: ' + error.message;
+        if (error.code === 'auth/email-already-in-use') {
+            errorMessage = 'An account with this email already exists.';
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = 'Invalid email address.';
+        } else if (error.code === 'auth/weak-password') {
+            errorMessage = 'Password is too weak.';
+        }
+        
+        if (authStatus) {
+            authStatus.textContent = errorMessage;
+            authStatus.style.color = '#da3737';
+        }
+    }
+}
+
+async function signOutUser() {
+    try {
+        await signOut(window.firebaseAuth);
+    } catch (error) {
+        console.error('Sign out error:', error);
+    }
 }
 
 // Save game history to Firestore
 async function saveGameHistory() {
     if (!currentUser) {
-        document.getElementById('authContainer').style.display = 'flex';
-        return false;
+        return;
     }
     
     try {
-        const currentSettings = JSON.parse(localStorage.getItem("sheetSettings") || JSON.stringify(sheetSettings));
-        const { Timestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const sheetSettings = JSON.parse(localStorage.getItem('sheetSettings') || '{}');
+        const players = JSON.parse(localStorage.getItem('players') || '[]');
         
         const gameData = {
             userId: currentUser.uid,
-            timestamp: Timestamp.now(),
-            sheetSettings: currentSettings,
-            players: currentSettings.players.map(p => ({
-                name: p.name,
-                color: p.color,
-                totalScore: calculatePlayerTotal(p)
-            }))
+            timestamp: new Date(),
+            sheetSettings: sheetSettings,
+            players: players
         };
         
         await addDoc(collection(window.firebaseDb, 'gameHistory'), gameData);
-        hideQuotaWarning();
-        return true;
     } catch (error) {
         if (isQuotaError(error)) {
             showQuotaWarning();
         }
-        return false;
+        console.error('Error saving game history:', error);
     }
 }
 
 // Load game history from Firestore
 async function loadGameHistory() {
     if (!currentUser) {
-        document.getElementById('authContainer').style.display = 'flex';
-        return;
+        return [];
     }
     
     try {
@@ -240,208 +394,164 @@ async function loadGameHistory() {
             });
         });
         
-        hideQuotaWarning();
         return games;
     } catch (error) {
         if (isQuotaError(error)) {
             showQuotaWarning();
         }
+        console.error('Error loading game history:', error);
         return [];
     }
 }
 
-// Show game history modal
-async function showGameHistory() {
-    const games = await loadGameHistory();
-    const historyList = document.getElementById('gameHistoryList');
-    
-    historyList.innerHTML = '';
-    
-    if (games.length === 0) {
-        const noGames = document.createElement('p');
-        noGames.textContent = 'No game history found.';
-        historyList.appendChild(noGames);
-    } else {
-        const container = document.createElement('div');
-        container.className = 'game-history-container';
-        
-        games.forEach((game) => {
-            // Handle Firestore timestamp
-            let gameDate;
-            if (game.timestamp && game.timestamp.seconds) {
-                gameDate = new Date(game.timestamp.seconds * 1000);
-            } else if (game.timestamp && game.timestamp.toDate) {
-                gameDate = game.timestamp.toDate();
-            } else {
-                gameDate = new Date(game.timestamp);
-            }
-            
-            // Format date: "today", "yesterday", or formatted date
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
-            const gameDateOnly = new Date(gameDate);
-            gameDateOnly.setHours(0, 0, 0, 0);
-            
-            let dateLabel;
-            if (gameDateOnly.getTime() === today.getTime()) {
-                dateLabel = 'Today';
-            } else if (gameDateOnly.getTime() === yesterday.getTime()) {
-                dateLabel = 'Yesterday';
-            } else {
-                dateLabel = gameDate.toLocaleDateString();
-            }
-            
-            // Get time only for display (no date)
-            const timestamp = gameDate.toLocaleTimeString();
-            
-            // Get player data
-            let playersToDisplay = [];
-            if (game.players && Array.isArray(game.players) && game.players.length > 0) {
-                playersToDisplay = game.players;
-            } else if (game.sheetSettings && game.sheetSettings.players && Array.isArray(game.sheetSettings.players)) {
-                playersToDisplay = game.sheetSettings.players.map(p => {
-                    let total = 0;
-                    if (p.scores && Array.isArray(p.scores)) {
-                        p.scores.forEach(score => {
-                            const val = parseFloat(score.val);
-                            if (!isNaN(val)) {
-                                total += val;
-                            }
-                        });
-                    }
-                    return {
-                        name: p.name || 'Unknown',
-                        color: p.color || '#171717',
-                        totalScore: total
-                    };
-                });
-            }
-            
-            // Create game card
-            const card = document.createElement('div');
-            card.className = 'game-history-card';
-            
-            // Top row: date and buttons
-            const topRow = document.createElement('div');
-            topRow.className = 'game-history-top-row';
-            
-            const dateDiv = document.createElement('div');
-            dateDiv.className = 'game-history-date';
-            dateDiv.textContent = `${dateLabel} • ${timestamp}`;
-            topRow.appendChild(dateDiv);
-            
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'game-history-buttons';
-            
-            const restoreBtn = document.createElement('button');
-            restoreBtn.className = 'game-history-btn-restore';
-            restoreBtn.textContent = 'Restore';
-            restoreBtn.onclick = () => restoreGame(game.id);
-            buttonContainer.appendChild(restoreBtn);
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'game-history-btn-delete';
-            deleteBtn.textContent = 'Delete';
-            deleteBtn.onclick = () => deleteGameFromHistory(game.id);
-            buttonContainer.appendChild(deleteBtn);
-            
-            topRow.appendChild(buttonContainer);
-            card.appendChild(topRow);
-            
-            // Player display
-            const playerContainer = document.createElement('div');
-            playerContainer.className = 'game-history-players';
-            
-            playersToDisplay.forEach(p => {
-                const playerSpan = document.createElement('span');
-                playerSpan.className = 'game-history-player';
-                const nameText = document.createTextNode((p.name || 'Unknown') + ': ');
-                const scoreStrong = document.createElement('strong');
-                scoreStrong.textContent = (p.totalScore !== undefined ? p.totalScore : 0).toString();
-                playerSpan.appendChild(nameText);
-                playerSpan.appendChild(scoreStrong);
-                playerContainer.appendChild(playerSpan);
-            });
-            
-            card.appendChild(playerContainer);
-            container.appendChild(card);
-        });
-        
-        historyList.appendChild(container);
-    }
-    
-    document.getElementById('gameHistoryModal').style.display = 'flex';
-}
-
 // Restore a game from history
 async function restoreGame(gameId) {
+    if (!currentUser) {
+        return;
+    }
+    
     try {
         const gameDoc = await getDoc(doc(window.firebaseDb, 'gameHistory', gameId));
         if (gameDoc.exists()) {
             const gameData = gameDoc.data();
-            if (gameData.sheetSettings) {
-                sheetSettings = gameData.sheetSettings;
-                localStorage.setItem("sheetSettings", JSON.stringify(sheetSettings));
-                document.getElementById("mainTable").getElementsByTagName("thead")[0].textContent = "";
-                document.getElementById("mainTable").getElementsByTagName("tbody")[0].textContent = "";
-                createTable();
-                document.getElementById('gameHistoryModal').style.display = 'none';
+            if (gameData.userId === currentUser.uid) {
+                if (gameData.sheetSettings) {
+                    localStorage.setItem('sheetSettings', JSON.stringify(gameData.sheetSettings));
+                }
+                if (gameData.players) {
+                    localStorage.setItem('players', JSON.stringify(gameData.players));
+                }
+                location.reload();
             }
         }
     } catch (error) {
-        alert('Error restoring game: ' + error.message);
+        console.error('Error restoring game:', error);
     }
 }
 
 // Delete a game from history
 async function deleteGameFromHistory(gameId) {
     if (!currentUser) {
-        alert('You must be signed in to delete games.');
-        return;
-    }
-    
-    if (!confirm('Are you sure you want to delete this game from history? This cannot be undone.')) {
         return;
     }
     
     try {
-        const gameDoc = await getDoc(doc(window.firebaseDb, 'gameHistory', gameId));
-        if (gameDoc.exists()) {
-            const gameData = gameDoc.data();
-            if (gameData.userId !== currentUser.uid) {
-                alert('You can only delete your own games.');
-                return;
-            }
-            
-            await deleteDoc(doc(window.firebaseDb, 'gameHistory', gameId));
-            await showGameHistory();
+        await deleteDoc(doc(window.firebaseDb, 'gameHistory', gameId));
+    } catch (error) {
+        console.error('Error deleting game:', error);
+    }
+}
+
+// Show game history modal
+async function showGameHistory() {
+    const modal = document.getElementById('gameHistoryModal');
+    const list = document.getElementById('gameHistoryList');
+    
+    if (!modal || !list) {
+        return;
+    }
+    
+    modal.style.display = 'flex';
+    list.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Loading...</div>';
+    
+    const games = await loadGameHistory();
+    
+    if (games.length === 0) {
+        list.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">No game history found.</div>';
+        return;
+    }
+    
+    list.innerHTML = '';
+    
+    games.forEach((game) => {
+        const gameDate = game.timestamp.toDate();
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const gameDateOnly = new Date(gameDate.getFullYear(), gameDate.getMonth(), gameDate.getDate());
+        
+        let dateText;
+        if (gameDateOnly.getTime() === today.getTime()) {
+            dateText = 'Today';
+        } else if (gameDateOnly.getTime() === yesterday.getTime()) {
+            dateText = 'Yesterday';
         } else {
-            alert('Game not found.');
+            dateText = gameDate.toLocaleDateString();
         }
-    } catch (error) {
-        alert('Error deleting game: ' + error.message);
+        
+        const timeText = gameDate.toLocaleTimeString();
+        const dateTimeText = `${dateText} • ${timeText}`;
+        
+        const gameCard = document.createElement('div');
+        gameCard.className = 'game-history-card';
+        
+        const header = document.createElement('div');
+        header.className = 'game-history-header';
+        header.innerHTML = `<div class="game-history-date">${dateTimeText}</div>`;
+        
+        const buttons = document.createElement('div');
+        buttons.className = 'game-history-buttons';
+        
+        const restoreBtn = document.createElement('button');
+        restoreBtn.className = 'game-history-btn-restore';
+        restoreBtn.textContent = 'Restore';
+        restoreBtn.onclick = () => {
+            restoreGame(game.id);
+            modal.style.display = 'none';
+        };
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'game-history-btn-delete';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = async () => {
+            await deleteGameFromHistory(game.id);
+            showGameHistory();
+        };
+        
+        buttons.appendChild(restoreBtn);
+        buttons.appendChild(deleteBtn);
+        header.appendChild(buttons);
+        
+        const playersList = document.createElement('div');
+        playersList.className = 'game-history-players';
+        
+        if (game.players && game.players.length > 0) {
+            game.players.forEach((player) => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'game-history-player';
+                playerDiv.innerHTML = `<strong>${player.name || 'Unnamed'}:</strong> ${player.score || 0}`;
+                playersList.appendChild(playerDiv);
+            });
+        }
+        
+        gameCard.appendChild(header);
+        gameCard.appendChild(playersList);
+        list.appendChild(gameCard);
+    });
+}
+
+// Close game history modal
+function closeGameHistory() {
+    const modal = document.getElementById('gameHistoryModal');
+    if (modal) {
+        modal.style.display = 'none';
     }
 }
 
-// Sign out user
-async function signOutUser() {
-    try {
-        await signOut(window.firebaseAuth);
-        document.getElementById('gameHistoryModal').style.display = 'none';
-    } catch (error) {
-        alert('Error signing out: ' + error.message);
+// Close game history modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('gameHistoryModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
     }
 }
 
-// Make functions globally available
+// Make functions globally accessible for onclick handlers
+window.showSignInModal = showSignInModal;
 window.signInWithGoogle = signInWithGoogle;
 window.signInWithEmail = signInWithEmail;
 window.signUpWithEmail = signUpWithEmail;
-window.showGameHistory = showGameHistory;
-window.restoreGame = restoreGame;
-window.deleteGameFromHistory = deleteGameFromHistory;
-window.showSignInModal = showSignInModal;
-window.saveGameHistory = saveGameHistory;
 window.signOutUser = signOutUser;
+window.showGameHistory = showGameHistory;
+window.closeGameHistory = closeGameHistory;

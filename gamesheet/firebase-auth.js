@@ -64,6 +64,7 @@ function hideQuotaWarning() {
 }
 
 // Initialize auth state listener
+// This is the PRIMARY way to detect sign-in (including redirects)
 function initAuthListener() {
     if (window.firebaseAuth) {
         onAuthStateChanged(window.firebaseAuth, (user) => {
@@ -88,9 +89,6 @@ function initAuthListener() {
     }
 }
 
-// Track if we've already handled redirect result (can only call getRedirectResult once)
-let redirectResultHandled = false;
-
 // Set initial button states (before auth listener fires)
 function setInitialButtonStates() {
     const historyButton = document.getElementById('gameHistoryButton');
@@ -101,15 +99,20 @@ function setInitialButtonStates() {
 }
 
 // Start listening when DOM is ready
+// The auth state listener will automatically detect redirect sign-ins
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
         setInitialButtonStates();
+        // Initialize auth listener - it will handle redirects automatically
         initAuthListener();
+        // Also check for redirect result as a fallback (but don't rely on it)
         handleRedirectResult();
     });
 } else {
     setInitialButtonStates();
+    // Initialize auth listener - it will handle redirects automatically
     initAuthListener();
+    // Also check for redirect result as a fallback (but don't rely on it)
     handleRedirectResult();
 }
 
@@ -117,6 +120,16 @@ if (document.readyState === 'loading') {
 function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
            (window.innerWidth <= 768 && 'ontouchstart' in window);
+}
+
+// Detect if we're on a local/private IP (redirect won't work, use popup instead)
+function isLocalIP() {
+    const hostname = window.location.hostname;
+    return hostname === 'localhost' || 
+           hostname === '127.0.0.1' ||
+           /^192\.168\./.test(hostname) ||
+           /^10\./.test(hostname) ||
+           /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname);
 }
 
 // Sign in with Google
@@ -153,14 +166,11 @@ async function signInWithGoogle() {
     try {
         const provider = new GoogleAuthProvider();
         const isMobile = isMobileDevice();
+        const isLocal = isLocalIP();
         
-        if (isMobile) {
-            // Mobile: use redirect flow
-            authStatus.textContent = 'Redirecting to Google sign-in...';
-            authStatus.style.color = '#ffffff';
-            await signInWithRedirect(window.firebaseAuth, provider);
-        } else {
-            // Desktop: use popup flow
+        // Use popup for local IPs (redirect won't work) or desktop, redirect for mobile on public domains
+        if (isLocal || !isMobile) {
+            // Local IP or desktop: use popup flow
             authStatus.textContent = 'Opening sign-in window...';
             authStatus.style.color = '#ffffff';
             await signInWithPopup(window.firebaseAuth, provider);
@@ -170,6 +180,11 @@ async function signInWithGoogle() {
                 googleButton.disabled = false;
                 googleButton.textContent = 'Sign in with Google';
             }
+        } else {
+            // Mobile on public domain: use redirect flow
+            authStatus.textContent = 'Redirecting to Google sign-in...';
+            authStatus.style.color = '#ffffff';
+            await signInWithRedirect(window.firebaseAuth, provider);
         }
     } catch (error) {
         let errorMessage = 'Error: ' + error.message;
@@ -195,17 +210,14 @@ async function signInWithGoogle() {
     }
 }
 
-// Handle redirect result when page loads (for mobile Google sign-in)
+// Handle redirect result when page loads (secondary check - auth listener is primary)
+// This is called as a fallback, but onAuthStateChanged should handle redirects automatically
 async function handleRedirectResult() {
-    if (redirectResultHandled) {
-        return;
-    }
-    
     // Wait for Firebase Auth to be ready
     let retries = 0;
-    const maxRetries = 10;
+    const maxRetries = 20;
     while (!window.firebaseAuth && retries < maxRetries) {
-        await new Promise(resolve => setTimeout(resolve, 100 * (retries + 1)));
+        await new Promise(resolve => setTimeout(resolve, 50));
         retries++;
     }
     
@@ -214,28 +226,19 @@ async function handleRedirectResult() {
     }
     
     try {
+        // Try to get redirect result (may return null if already processed by auth listener)
         const result = await getRedirectResult(window.firebaseAuth);
-        redirectResultHandled = true;
         
         if (result && result.user) {
-            // User signed in via redirect
+            // Redirect result found - update status message
             const authStatus = document.getElementById('authStatus');
             if (authStatus) {
                 authStatus.textContent = 'Signed in successfully!';
                 authStatus.style.color = '#00CF48';
             }
-            
-            // Manually update UI (auth state listener should also fire)
-            const authContainer = document.getElementById('authContainer');
-            const historyButton = document.getElementById('gameHistoryButton');
-            const signInButton = document.getElementById('signInButton');
-            
-            if (authContainer) authContainer.style.display = 'none';
-            if (historyButton) historyButton.style.display = 'block';
-            if (signInButton) signInButton.style.display = 'none';
         }
     } catch (error) {
-        // Handle redirect errors silently - auth state listener will handle user state
+        // Handle redirect errors
         if (error.code === 'auth/unauthorized-domain') {
             const authStatus = document.getElementById('authStatus');
             if (authStatus) {

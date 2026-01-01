@@ -3,7 +3,33 @@
         <title>Ultimate Game Sheet!</title>
         <link rel="icon" href="images/favicon.ico">
         <!--<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Barlow">-->
+        <!-- Firebase SDKs -->
+        <script type="module">
+            import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+            import { getAuth, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+            import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+            // Your web app's Firebase configuration
+            const firebaseConfig = {
+            apiKey: "AIzaSyBfXCbE_NPMOspsbM1LCzOBQHFW-97EKKc",
+            authDomain: "gamesheet-history.firebaseapp.com",
+            projectId: "gamesheet-history",
+            storageBucket: "gamesheet-history.firebasestorage.app",
+            messagingSenderId: "929226529796",
+            appId: "1:929226529796:web:c4cd1eb9ddcf94c6b76951"
+            };
+            
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            window.firebaseAuth = getAuth(app);
+            
+            // Set authentication to never expire - user stays logged in until they explicitly sign out
+            setPersistence(window.firebaseAuth, browserLocalPersistence);
+            
+            window.firebaseDb = getFirestore(app);
+        </script>
         <script src="jscolor-modx3.js"></script>
+        <script type="module" src="firebase-auth.js"></script>
         <script src="index.js"></script>
         <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="indexLight.css">
@@ -33,6 +59,40 @@
         </script>
     </head>
 	<body onload="createTable()">
+        <!-- Firebase Auth UI -->
+        <div id="authContainer">
+            <div class="auth-modal-content">
+                <h2>Sign In to Save Game History</h2>
+                
+                <!-- Email/Password Auth (shown by default) -->
+                <div id="emailAuthForm">
+                    <input type="email" id="emailInput" placeholder="Email" autocomplete="email" class="auth-input">
+                    <input type="password" id="passwordInput" placeholder="Password (min 6 characters)" autocomplete="current-password" class="auth-input">
+                    <button type="button" onclick="signInWithEmail()" class="auth-button">Sign In</button>
+                    <button type="button" onclick="signUpWithEmail()" class="auth-button">Create Account</button>
+                    <div class="auth-divider">or</div>
+                    <button type="button" id="signInGoogle" onclick="signInWithGoogle()" class="auth-button">Sign in with Google</button>
+                </div>
+                
+                <button onclick="document.getElementById('authContainer').style.display = 'none'" class="auth-skip-button">Skip for now</button>
+                <div id="authStatus"></div>
+            </div>
+        </div>
+        
+        <!-- Game History Modal -->
+        <div id="gameHistoryModal">
+            <div id="gameHistoryModalContent">
+                <div class="game-history-header">
+                    <h2>Game History</h2>
+                    <div class="game-history-header-buttons">
+                        <button onclick="signOutUser()" class="game-history-signout-button">Sign Out</button>
+                        <button onclick="document.getElementById('gameHistoryModal').style.display = 'none'" class="game-history-close-button">Close</button>
+                    </div>
+                </div>
+                <div id="gameHistoryList"></div>
+            </div>
+        </div>
+        
         <div id="deletePlayer" onclick="deletePlayer();">⊗</div>
         <div id="modalBackdrop" style="display: none;" onclick="hideSortedScoresModal()"></div>
         <div id="sortedScoresModal" style="display: none;"></div>
@@ -61,10 +121,22 @@
                         <button id="ClearScores" onclick="clearSheet();">Clear Scores</button>
                         <button id="ResetSheet" onclick="resetSheetToDefault()">Reset Sheet</button>
                     </div>
+                    <div>
+                        <!-- Sign In Button (shown when not signed in) -->
+                        <button id="signInButton" class="gameHistoryButton" onclick="showSignInModal()">Save Game History</button>
+                        <!-- Game History UI (shown when signed in) -->
+                        <button id="gameHistoryButton" class="gameHistoryButton" onclick="showGameHistory()">Game History</button>
+                    </div>
                 </div>
             </div>
             <div id="bottom-section">
             </div>
           </div>
+        <div id="negativeButton" style="display: none;" onclick="insertNegative()">-</div>
+        
+        <!-- Quota Warning Message (shown when Firebase quota is exceeded) -->
+        <div id="quotaWarning">
+            <strong>⚠️ Firebase API Quota Exceeded:</strong> The free tier limit has been reached. Game history saving is temporarily disabled. Try again later.
+        </div>
     </body>
 </html>

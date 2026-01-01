@@ -2478,8 +2478,17 @@ var jsc = {
 
 			//console.log(THIS);
 			let playerInputElement = THIS.valueElement;
-
-			applyPlayerColor(playerInputElement);
+			if (playerInputElement && THIS) {
+				// toHEXString() already returns a string with # prefix
+				let currentColor = THIS.toHEXString();
+				// Ensure it starts with # (in case it doesn't)
+				if (!currentColor.startsWith('#')) {
+					currentColor = '#' + currentColor;
+				}
+				applyPlayerColor(playerInputElement, currentColor);
+			} else {
+				applyPlayerColor(playerInputElement);
+			}
 		}
 
 

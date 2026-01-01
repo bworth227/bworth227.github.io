@@ -67,16 +67,21 @@ function hideQuotaWarning() {
 // This is the PRIMARY way to detect sign-in (including redirects)
 function initAuthListener() {
     if (window.firebaseAuth) {
+        console.log('Initializing auth state listener...');
         onAuthStateChanged(window.firebaseAuth, (user) => {
+            console.log('Auth state changed:', user ? user.email : 'null');
             currentUser = user;
             if (user) {
+                console.log('User signed in, updating UI...');
                 const authContainer = document.getElementById('authContainer');
                 const historyButton = document.getElementById('gameHistoryButton');
                 const signInButton = document.getElementById('signInButton');
                 if (authContainer) authContainer.style.display = 'none';
                 if (historyButton) historyButton.style.display = 'block';
                 if (signInButton) signInButton.style.display = 'none';
+                console.log('UI updated - user is signed in');
             } else {
+                console.log('User signed out, updating UI...');
                 const historyButton = document.getElementById('gameHistoryButton');
                 const signInButton = document.getElementById('signInButton');
                 if (historyButton) historyButton.style.display = 'none';
@@ -85,6 +90,7 @@ function initAuthListener() {
             }
         });
     } else {
+        console.log('Firebase Auth not ready, retrying...');
         setTimeout(initAuthListener, 100);
     }
 }
@@ -99,21 +105,23 @@ function setInitialButtonStates() {
 }
 
 // Start listening when DOM is ready
-// The auth state listener will automatically detect redirect sign-ins
+// IMPORTANT: According to Firebase docs, getRedirectResult should be called BEFORE onAuthStateChanged
+// to ensure the redirect result is processed correctly
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
         setInitialButtonStates();
-        // Initialize auth listener - it will handle redirects automatically
+        // Handle redirect result FIRST (before auth listener)
+        await handleRedirectResult();
+        // Then initialize auth listener
         initAuthListener();
-        // Also check for redirect result as a fallback (but don't rely on it)
-        handleRedirectResult();
     });
 } else {
     setInitialButtonStates();
-    // Initialize auth listener - it will handle redirects automatically
-    initAuthListener();
-    // Also check for redirect result as a fallback (but don't rely on it)
-    handleRedirectResult();
+    // Handle redirect result FIRST (before auth listener)
+    handleRedirectResult().then(() => {
+        // Then initialize auth listener
+        initAuthListener();
+    });
 }
 
 // Detect if we're on a mobile device
@@ -213,31 +221,92 @@ async function signInWithGoogle() {
 // Handle redirect result when page loads (secondary check - auth listener is primary)
 // This is called as a fallback, but onAuthStateChanged should handle redirects automatically
 async function handleRedirectResult() {
+    console.log('handleRedirectResult called');
+    console.log('Current URL:', window.location.href);
+    console.log('URL hash:', window.location.hash);
+    console.log('URL search:', window.location.search);
+    
     // Wait for Firebase Auth to be ready
     let retries = 0;
-    const maxRetries = 20;
+    const maxRetries = 30; // Increased retries for mobile
     while (!window.firebaseAuth && retries < maxRetries) {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 100));
         retries++;
     }
     
     if (!window.firebaseAuth) {
+        console.error('Firebase Auth not ready after waiting');
         return;
     }
     
+    // On mobile, give Firebase a bit more time to process the redirect
+    // Check if we're returning from a redirect (has hash or search params)
+    const hasRedirectParams = window.location.hash || window.location.search;
+    if (hasRedirectParams) {
+        console.log('Redirect params detected, waiting 300ms for Firebase to process...');
+        await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    
     try {
+        console.log('Calling getRedirectResult...');
         // Try to get redirect result (may return null if already processed by auth listener)
         const result = await getRedirectResult(window.firebaseAuth);
+        console.log('getRedirectResult returned:', result ? 'result found' : 'null');
         
         if (result && result.user) {
-            // Redirect result found - update status message
+            console.log('Redirect result found, user:', result.user.email);
+            // Update currentUser variable
+            currentUser = result.user;
+            
+            // Redirect result found - update status message and UI
             const authStatus = document.getElementById('authStatus');
             if (authStatus) {
                 authStatus.textContent = 'Signed in successfully!';
                 authStatus.style.color = '#00CF48';
             }
+            
+            // Manually update UI immediately
+            const authContainer = document.getElementById('authContainer');
+            const historyButton = document.getElementById('gameHistoryButton');
+            const signInButton = document.getElementById('signInButton');
+            
+            if (authContainer) authContainer.style.display = 'none';
+            if (historyButton) historyButton.style.display = 'block';
+            if (signInButton) signInButton.style.display = 'none';
+            
+            console.log('UI updated from redirect result');
+        } else {
+            console.log('No redirect result, checking current user...');
+            let user = window.firebaseAuth.currentUser;
+            console.log('Current user (immediate):', user ? user.email : 'null');
+            
+            // On mobile, the user might not be set immediately after redirect
+            // Wait a bit and check again if we detected redirect params
+            if (hasRedirectParams && !user) {
+                console.log('Redirect params detected but no user yet, waiting 500ms and checking again...');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                user = window.firebaseAuth.currentUser;
+                console.log('Current user (after wait):', user ? user.email : 'null');
+            }
+            
+            // If user is signed in but no redirect result, update UI anyway
+            if (user) {
+                console.log('User is signed in, updating UI...');
+                currentUser = user; // Update global currentUser variable
+                const authContainer = document.getElementById('authContainer');
+                const historyButton = document.getElementById('gameHistoryButton');
+                const signInButton = document.getElementById('signInButton');
+                
+                if (authContainer) authContainer.style.display = 'none';
+                if (historyButton) historyButton.style.display = 'block';
+                if (signInButton) signInButton.style.display = 'none';
+                console.log('UI updated from currentUser check');
+            } else if (hasRedirectParams) {
+                console.warn('Redirect params detected but user is still null - auth state listener should handle this');
+            }
         }
     } catch (error) {
+        console.error('Error in handleRedirectResult:', error);
         // Handle redirect errors
         if (error.code === 'auth/unauthorized-domain') {
             const authStatus = document.getElementById('authStatus');

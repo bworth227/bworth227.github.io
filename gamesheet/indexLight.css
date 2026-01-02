@@ -157,7 +157,7 @@ body.lightMode  {
 }
 
 .lightMode .auth-modal-content {
-    background: #c3c3c3;
+    background: #e1e1e1;
 }
 
 .lightMode .auth-modal-content h2 {
@@ -179,7 +179,7 @@ body.lightMode  {
 
 .lightMode .auth-skip-button {
     background: #a09f9f;
-    color: white;
+    color: black;
 }
 
 .lightMode .auth-skip-button:hover {

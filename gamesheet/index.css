@@ -644,9 +644,9 @@ body > .jscolor-wrap {
 }
 
 .auth-skip-button {
-    margin-top: 25px;
+    margin-top: 45px;
     padding: 20px;
-    background: #5f5f5f;
+    background: transparent !important;
     color: white;
     border: none;
     border-radius: 9px;

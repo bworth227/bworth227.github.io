@@ -7,6 +7,7 @@ import {
     GoogleAuthProvider, 
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
     signOut,
     onAuthStateChanged
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -307,40 +308,29 @@ async function handleRedirectResult() {
     }
 }
 
-// Sign in with email and password
-async function signInWithEmail() {
+// Send password reset email
+async function resetPassword() {
     const email = document.getElementById('emailInput').value;
-    const password = document.getElementById('passwordInput').value;
     const authStatus = document.getElementById('authStatus');
     
-    if (!email || !password) {
+    if (!email) {
         if (authStatus) {
-            authStatus.textContent = 'Please enter both email and password.';
-            authStatus.style.color = '#da3737';
-        }
-        return;
-    }
-    
-    if (password.length < 6) {
-        if (authStatus) {
-            authStatus.textContent = 'Password must be at least 6 characters.';
+            authStatus.textContent = 'Please enter your email address.';
             authStatus.style.color = '#da3737';
         }
         return;
     }
     
     try {
-        await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+        await sendPasswordResetEmail(window.firebaseAuth, email);
         if (authStatus) {
-            authStatus.textContent = 'Signed in successfully!';
+            authStatus.textContent = 'Password reset email sent! Check your inbox.';
             authStatus.style.color = '#00CF48';
         }
     } catch (error) {
         let errorMessage = 'Error: ' + error.message;
         if (error.code === 'auth/user-not-found') {
             errorMessage = 'No account found with this email.';
-        } else if (error.code === 'auth/wrong-password') {
-            errorMessage = 'Incorrect password.';
         } else if (error.code === 'auth/invalid-email') {
             errorMessage = 'Invalid email address.';
         }
@@ -352,8 +342,8 @@ async function signInWithEmail() {
     }
 }
 
-// Create account with email and password
-async function signUpWithEmail() {
+// Sign in or create account (automatically determines which)
+async function signInOrCreateAccount() {
     const email = document.getElementById('emailInput').value;
     const password = document.getElementById('passwordInput').value;
     const authStatus = document.getElementById('authStatus');
@@ -374,27 +364,87 @@ async function signUpWithEmail() {
         return;
     }
     
+    // Try to sign in first
     try {
-        await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+        await signInWithEmailAndPassword(window.firebaseAuth, email, password);
         if (authStatus) {
-            authStatus.textContent = 'Account created successfully!';
+            authStatus.textContent = 'Signed in successfully!';
             authStatus.style.color = '#00CF48';
         }
-    } catch (error) {
-        let errorMessage = 'Error: ' + error.message;
-        if (error.code === 'auth/email-already-in-use') {
-            errorMessage = 'An account with this email already exists.';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage = 'Invalid email address.';
-        } else if (error.code === 'auth/weak-password') {
-            errorMessage = 'Password is too weak.';
-        }
-        
-        if (authStatus) {
-            authStatus.textContent = errorMessage;
-            authStatus.style.color = '#da3737';
+    } catch (signInError) {
+        // If user doesn't exist, create account
+        if (signInError.code === 'auth/user-not-found') {
+            try {
+                await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+                if (authStatus) {
+                    authStatus.textContent = 'Account created and signed in!';
+                    authStatus.style.color = '#00CF48';
+                }
+            } catch (createError) {
+                let errorMessage = 'Error: ' + createError.message;
+                if (createError.code === 'auth/email-already-in-use') {
+                    // This shouldn't happen, but if it does, try sign in again
+                    try {
+                        await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                        if (authStatus) {
+                            authStatus.textContent = 'Signed in successfully!';
+                            authStatus.style.color = '#00CF48';
+                        }
+                    } catch (retryError) {
+                        errorMessage = 'Incorrect password.';
+                        if (authStatus) {
+                            authStatus.textContent = errorMessage;
+                            authStatus.style.color = '#da3737';
+                        }
+                    }
+                } else if (createError.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email address.';
+                    if (authStatus) {
+                        authStatus.textContent = errorMessage;
+                        authStatus.style.color = '#da3737';
+                    }
+                } else if (createError.code === 'auth/weak-password') {
+                    errorMessage = 'Password is too weak.';
+                    if (authStatus) {
+                        authStatus.textContent = errorMessage;
+                        authStatus.style.color = '#da3737';
+                    }
+                } else {
+                    if (authStatus) {
+                        authStatus.textContent = errorMessage;
+                        authStatus.style.color = '#da3737';
+                    }
+                }
+            }
+        } else if (signInError.code === 'auth/wrong-password') {
+            // Wrong password - don't create account
+            if (authStatus) {
+                authStatus.textContent = 'Incorrect password.';
+                authStatus.style.color = '#da3737';
+            }
+        } else if (signInError.code === 'auth/invalid-email') {
+            if (authStatus) {
+                authStatus.textContent = 'Invalid email address.';
+                authStatus.style.color = '#da3737';
+            }
+        } else {
+            // Other sign-in errors
+            if (authStatus) {
+                authStatus.textContent = 'Error: ' + signInError.message;
+                authStatus.style.color = '#da3737';
+            }
         }
     }
+}
+
+// Sign in with email and password (kept for backwards compatibility if needed)
+async function signInWithEmail() {
+    await signInOrCreateAccount();
+}
+
+// Create account with email and password (kept for backwards compatibility if needed)
+async function signUpWithEmail() {
+    await signInOrCreateAccount();
 }
 
 async function signOutUser() {
@@ -949,11 +999,33 @@ window.onclick = function(event) {
     }
 }
 
+// Toggle password visibility
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('passwordInput');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const eyeOffIcon = document.getElementById('eyeOffIcon');
+    
+    if (passwordInput && eyeIcon && eyeOffIcon) {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.style.display = 'none';
+            eyeOffIcon.style.display = 'block';
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.style.display = 'block';
+            eyeOffIcon.style.display = 'none';
+        }
+    }
+}
+
 // Make functions globally accessible for onclick handlers
 window.showSignInModal = showSignInModal;
 window.signInWithGoogle = signInWithGoogle;
+window.signInOrCreateAccount = signInOrCreateAccount;
 window.signInWithEmail = signInWithEmail;
 window.signUpWithEmail = signUpWithEmail;
+window.resetPassword = resetPassword;
+window.togglePasswordVisibility = togglePasswordVisibility;
 window.signOutUser = signOutUser;
 window.showGameHistory = showGameHistory;
 window.closeGameHistory = closeGameHistory;

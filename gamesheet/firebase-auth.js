@@ -826,16 +826,49 @@ async function showGameHistory() {
         };
         gameCard.onclick = handleCardClick;
         
-        const header = document.createElement('div');
-        header.className = 'game-history-item-header';
+        // Title row (top, with game name on left and timestamp on right)
+        const titleRow = document.createElement('div');
+        titleRow.className = 'game-history-title-row';
         
         // Get game name from sheetSettings if it exists
         const gameName = game.sheetSettings && game.sheetSettings.gameName ? game.sheetSettings.gameName : '';
-        const dateHtml = gameName 
-            ? `<div class="game-history-date"><b style="font-size: 25px;">${gameName}</b> • ${dateTimeText}</div>`
-            : `<div class="game-history-date">${dateTimeText}</div>`;
-        header.innerHTML = dateHtml;
         
+        const gameNameDiv = document.createElement('div');
+        gameNameDiv.className = 'game-history-game-name';
+        gameNameDiv.innerHTML = `<b style="font-size: 25px;">${gameName}</b>`;
+        titleRow.appendChild(gameNameDiv);
+        
+        const timestampDiv = document.createElement('div');
+        timestampDiv.className = 'game-history-timestamp';
+        timestampDiv.textContent = dateTimeText;
+        titleRow.appendChild(timestampDiv);
+        
+        // Players list (below title)
+        const playersList = document.createElement('div');
+        playersList.className = 'game-history-players';
+        
+        if (game.players && game.players.length > 0) {
+            game.players.forEach((player) => {
+                // Calculate total score from scores array
+                let totalScore = 0;
+                if (player.scores && Array.isArray(player.scores)) {
+                    player.scores.forEach((scoreEntry) => {
+                        const scoreValue = parseFloat(scoreEntry.val) || 0;
+                        totalScore += scoreValue;
+                    });
+                } else if (player.score !== undefined) {
+                    // Fallback to score property if it exists (for backwards compatibility)
+                    totalScore = parseFloat(player.score) || 0;
+                }
+                
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'game-history-player';
+                playerDiv.innerHTML = `<strong>${player.name || 'Unnamed'}:</strong> ${totalScore}`;
+                playersList.appendChild(playerDiv);
+            });
+        }
+        
+        // Buttons (below players, horizontal layout)
         const buttons = document.createElement('div');
         buttons.className = 'game-history-buttons';
         
@@ -869,34 +902,11 @@ async function showGameHistory() {
         buttons.appendChild(openBtn);
         buttons.appendChild(duplicateBtn);
         buttons.appendChild(deleteBtn);
-        header.appendChild(buttons);
         
-        const playersList = document.createElement('div');
-        playersList.className = 'game-history-players';
-        
-        if (game.players && game.players.length > 0) {
-            game.players.forEach((player) => {
-                // Calculate total score from scores array
-                let totalScore = 0;
-                if (player.scores && Array.isArray(player.scores)) {
-                    player.scores.forEach((scoreEntry) => {
-                        const scoreValue = parseFloat(scoreEntry.val) || 0;
-                        totalScore += scoreValue;
-                    });
-                } else if (player.score !== undefined) {
-                    // Fallback to score property if it exists (for backwards compatibility)
-                    totalScore = parseFloat(player.score) || 0;
-                }
-                
-                const playerDiv = document.createElement('div');
-                playerDiv.className = 'game-history-player';
-                playerDiv.innerHTML = `<strong>${player.name || 'Unnamed'}:</strong> ${totalScore}`;
-                playersList.appendChild(playerDiv);
-            });
-        }
-        
-        gameCard.appendChild(header);
+        // Assemble the card
+        gameCard.appendChild(titleRow);
         gameCard.appendChild(playersList);
+        gameCard.appendChild(buttons);
         list.appendChild(gameCard);
     });
 }
@@ -949,4 +959,5 @@ window.showGameHistory = showGameHistory;
 window.closeGameHistory = closeGameHistory;
 window.saveGameHistory = saveGameHistory;
 window.updateResetButtonText = updateResetButtonText;
+window.isCurrentGameUnchanged = isCurrentGameUnchanged;
 window.saveCurrentGameToHistory = saveCurrentGameToHistory;

@@ -528,23 +528,38 @@ function updateGameName() {
 async function resetSheetToDefault() {
     const isSignedIn = window.currentUser !== null;
     if (confirm(`Are you sure you want to reset the sheet? ${isSignedIn ? 'Your current game will be saved to history.' : ''}`)) {
-        // Save current game to history before resetting
+        // Save current game to history before resetting (only if it has been changed or not saved)
         // First, save current settings to ensure we have the latest data
         saveSettings();
 
         // Wait for save to complete before resetting
+        // Only save if the game has been changed or hasn't been saved yet
         if (window.saveGameHistory && isSignedIn) {
-            try {
-                await window.saveGameHistory();
-            } catch (err) {
-                console.error('Error in saveGameHistory promise:', err);
+            // Check if game is already saved and unchanged
+            const isUnchanged = window.isCurrentGameUnchanged && window.isCurrentGameUnchanged();
+            if (!isUnchanged) {
+                // Only save if game has been changed or hasn't been saved
+                try {
+                    await window.saveGameHistory();
+                } catch (err) {
+                    console.error('Error in saveGameHistory promise:', err);
+                }
             }
         }
 
         sheetSettings = JSON.parse(JSON.stringify(defaultSettings)); //this is super weird, but if I don't stringify and parse, the defaultSettings const somehow changes
         // Clear gameId when resetting so it doesn't try to update an old game
         delete sheetSettings.gameId;
+        // Clear game name
+        delete sheetSettings.gameName;
         localStorage.setItem("sheetSettings", JSON.stringify(sheetSettings));
+        
+        // Clear the game name input
+        const gameNameInput = document.getElementById('gameNameInput');
+        if (gameNameInput) {
+            gameNameInput.value = '';
+        }
+        
         document.getElementById("mainTable").getElementsByTagName("thead")[0].textContent = "";
         document.getElementById("mainTable").getElementsByTagName("tbody")[0].textContent = "";
         createTable();

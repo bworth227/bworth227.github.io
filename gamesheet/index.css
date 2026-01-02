@@ -480,16 +480,26 @@ body > .jscolor-wrap {
     background: #325a6f;
 }
 
-.game-history-item-header {
+.game-history-title-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
 }
 
+.game-history-game-name {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.game-history-timestamp {
+    font-size: 20px;
+}
+
 .game-history-top-row {
     display: flex;
     justify-content: space-between;
+    width: 100%;
     align-items: center;
     margin-bottom: 8px;
 }
@@ -501,7 +511,10 @@ body > .jscolor-wrap {
 
 .game-history-buttons {
     display: flex;
+    justify-content: right;
+    flex-direction: row;
     gap: 12px;
+    margin-top: 15px;
 }
 
 .game-history-btn-open {
@@ -551,9 +564,7 @@ body > .jscolor-wrap {
 
 .game-history-players {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px 15px;
-    font-size: 13px;
+    gap: 8px;
 }
 
 .game-history-player {
